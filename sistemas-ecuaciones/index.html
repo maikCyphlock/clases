@@ -4,525 +4,169 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Sistemas de ecuaciones</title>
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#000;--ink:#ece6d6;--blue:#58C4DD;--yel:#F7E463;--red:#FC6255;--grn:#83C167;--brn:#C08A5B;--gry:#8a8a8a;
- box-sizing:border-box}
-:root[data-theme="light"]{--bg:#000}
-*,*::before,*::after{box-sizing:inherit}
+/* Una lección por pantallas cortas: lees poco, mueves mucho, y cada respuesta tiene su porqué.
+   Ana siempre azul, Luis siempre ámbar, lo correcto verde, el error rojo. */
+:root{color-scheme:light;--bg:#f5f7fb;--ink:#14182b;--mute:#5a627e;--card:#ffffff;--line:#d9dfee;--soft:#e9edf6;
+ --ana:#0e76a3;--luis:#a56a00;--ok:#1c9a50;--on-ok:#ffffff;--okbg:#e3f6ea;--bad:#cf433b;--badbg:#fde9e7;--focus:#5558d9;--focusbg:#ecebfd;
+ --f-ui:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;--f-math:"Crimson Pro",Georgia,"Times New Roman",serif;
+ padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0e1120;--ink:#eef0f8;--mute:#a0a8c6;--card:#171b31;--line:#2b3252;--soft:#222845;
+ --ana:#58c4dd;--luis:#f7e463;--ok:#5fd38a;--on-ok:#08210f;--okbg:#12301f;--bad:#ff7168;--badbg:#38181a;--focus:#9a9cff;--focusbg:#23264d}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0e1120;--ink:#eef0f8;--mute:#a0a8c6;--card:#171b31;--line:#2b3252;--soft:#222845;
+ --ana:#58c4dd;--luis:#f7e463;--ok:#5fd38a;--on-ok:#08210f;--okbg:#12301f;--bad:#ff7168;--badbg:#38181a;--focus:#9a9cff;--focusbg:#23264d}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{height:100%;margin:0}
-body{background:var(--bg);color:var(--ink);font-family:"Crimson Pro",Georgia,serif;overflow:hidden}
-i{font-style:italic}
-.cb{color:var(--blue)}.cy{color:var(--yel)}.cg{color:var(--grn)}.cr{color:var(--red)}.cn{color:var(--brn)}
-#gl{position:fixed;inset:0;opacity:0;transition:opacity .8s;pointer-events:none}
-#gl.on{opacity:1}
-#stage{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 3vh);bottom:calc(env(safe-area-inset-bottom,0px) + 190px);
- display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2vh;padding:0 12px;overflow:hidden}
-#top{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:0;right:0;display:flex;justify-content:center;align-items:center;gap:8px 28px;flex-wrap:wrap;
- font-size:clamp(18px,3.4vw,30px);pointer-events:none;opacity:0;transition:opacity .5s;padding:0 12px;text-align:center}
-#top.on{opacity:1}
-.row{display:flex;align-items:center;justify-content:center;gap:clamp(8px,2vw,22px);flex-wrap:wrap}
-.op{font-size:clamp(24px,4.5vw,44px)}
-.name{font-style:italic;font-size:clamp(20px,3.8vw,36px)}
-.cap{font-family:"Source Sans 3",sans-serif;color:var(--gry);font-size:clamp(11px,1.8vw,15px);text-align:center;margin-top:4px}
-.cap2{font-family:"Source Sans 3",sans-serif;color:var(--brn);font-size:clamp(13px,2vw,18px);text-align:center}
-.big{font-size:clamp(28px,6vw,60px);font-style:italic;text-align:center}
-.fx{font-size:clamp(20px,3.6vw,34px);min-height:1.4em;text-align:center}
-.emo{font-size:clamp(16px,2.8vw,26px);min-height:1.4em;text-align:center}
-.ico{font-size:clamp(34px,6vw,54px)}
-.hide{opacity:0}
-/* sistema con llave y columnas alineadas */
-.sys{display:flex;align-items:center;gap:6px}
-.brace{font-size:clamp(60px,10vw,110px);font-weight:300;line-height:1;transform:scaleX(.75);color:var(--ink)}
-.eqs{display:flex;flex-direction:column;gap:2px}
-.g5{display:grid;grid-template-columns:1em 2.4em 1em 2.6em 1.2em 2.1em;justify-items:end;align-items:center;font-size:clamp(20px,4vw,38px);line-height:1.35}
-.g5 span{padding:0 1px;transition:color .5s,text-shadow .5s,opacity .6s}
-.sys.sm .g5{font-size:clamp(17px,3vw,28px)}.sys.sm .brace{font-size:clamp(46px,7vw,76px)}
-/* pizarra */
-.work{display:flex;flex-direction:column;align-items:center;gap:.6vh;width:100%}
-.ln{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:16px;font-size:clamp(20px,3.8vw,36px);min-height:1.45em;width:min(100%,940px)}
-.ln .tag{text-align:right;font-family:"Source Sans 3",sans-serif;font-size:.42em;color:var(--brn)}
-.ln .m{text-align:center}
-.ln .note{text-align:left;font-family:"Source Sans 3",sans-serif;font-size:.42em;color:var(--brn)}
-.ln.sep .m{border-top:2px solid var(--ink);padding-top:2px;min-width:12em}
-.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .15em;line-height:1.15}
-.frac>span:first-child{border-bottom:2px solid currentColor;padding:0 .25em}
-.frac>span:last-child{padding:0 .25em}
-@media (max-width:700px){.ln{grid-template-columns:1fr;gap:0;justify-items:center}.ln .tag{display:none}.ln .note{text-align:center}}
-.fly{position:fixed;display:grid;place-items:center;font-size:clamp(17px,3.6vw,34px);pointer-events:none;z-index:5;white-space:nowrap}
-/* boletas, fichas */
-.bol{border:2px solid currentColor;border-radius:12px;padding:12px 18px;min-width:min(42vw,250px);text-align:center;background:#07070a}
-.bol .who{font-family:"Source Sans 3",sans-serif;font-weight:600;font-size:clamp(14px,2.2vw,18px);margin-bottom:6px}
-.bol .items{font-size:clamp(26px,5vw,44px);letter-spacing:2px;min-height:1.4em;color:var(--ink)}
-.bol .items.eqt{letter-spacing:0;font-size:clamp(24px,4.2vw,38px)}
-.bol .tot{font-size:clamp(20px,3.6vw,32px)}
-.chips{text-align:center}
-.chip{display:inline-block;border:1px solid currentColor;border-radius:999px;padding:3px 14px;margin:4px;font-size:clamp(16px,2.8vw,24px);transition:color .5s,background .5s,box-shadow .5s}
-.chip.hit{color:#000;background:var(--grn);border-color:var(--grn);box-shadow:0 0 16px var(--grn)}
-.mc{border:1px solid #2a2a2a;border-radius:12px;padding:12px 14px;width:min(44vw,210px);text-align:center}
-.mc .when{font-family:"Source Sans 3",sans-serif;color:var(--gry);font-size:clamp(12px,1.8vw,15px);margin-top:6px;line-height:1.35}
-.mc h4{margin:2px 0 0;font-weight:600;font-size:clamp(18px,2.8vw,24px)}
-.plan{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.plan span{font-family:"Source Sans 3",sans-serif;font-size:clamp(13px,2vw,17px);border:1px solid #333;border-radius:999px;padding:4px 12px;color:var(--ink)}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--f-ui);overflow:hidden}
+button,input{font-family:inherit}
+button:focus-visible,input:focus-visible,canvas:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+i.v,.mth i{font-family:var(--f-math);font-style:italic;font-size:1.12em}
+.t-ana{color:var(--ana)}.t-luis{color:var(--luis)}.t-ok{color:var(--ok)}.t-bad{color:var(--bad)}.t-mute{color:var(--mute)}
+#app{height:100%;display:flex;flex-direction:column;max-width:720px;margin:0 auto}
+#hd{display:flex;align-items:center;gap:10px;padding:12px 16px 4px}
+.ib{width:38px;height:38px;flex:0 0 auto;border-radius:11px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font-size:16px;line-height:1}
+#prog{flex:1;display:flex;gap:4px}
+#prog .seg{flex:1;height:8px;background:var(--soft);border-radius:99px;overflow:hidden}
+#prog .seg i{display:block;height:100%;width:0;background:var(--ok);transition:width .4s}
+#main{flex:1;min-height:0;overflow-y:auto;padding:6px 16px 22px}
+.lvl{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--mute);font-weight:700;margin:6px 0 8px}
+#prompt{font-size:clamp(19px,3.6vw,23px);line-height:1.38;font-weight:600;margin:0 0 14px;text-wrap:pretty}
+.say{border:0;background:transparent;color:var(--mute);font:600 13px var(--f-ui);cursor:pointer;padding:2px 0;margin:-6px 0 10px}
+#vis{display:flex;flex-direction:column;gap:12px}
+.enter{animation:in .35s ease both}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+#ft{padding:12px 16px 14px;border-top:1px solid var(--line);background:var(--card);transition:background .25s}
+#ft.ok{background:var(--okbg)}#ft.bad{background:var(--badbg)}
+#sheet{margin-bottom:10px}
+#sheet h3{margin:0 0 2px;font-size:18px}
+#ft.ok #sheet h3{color:var(--ok)}#ft.bad #sheet h3{color:var(--bad)}
+#sheet p{margin:0;font-size:15.5px;line-height:1.45}
+#go{width:100%;padding:14px;border-radius:14px;border:0;font:700 17px var(--f-ui);background:var(--ok);color:var(--on-ok);cursor:pointer}
+#go:disabled{background:var(--soft);color:var(--mute);cursor:not-allowed}
+#ft.bad #go{background:var(--bad);color:#fff}
+.hintbtn{align-self:flex-start;border:1px solid var(--line);background:transparent;color:var(--mute);border-radius:99px;padding:5px 14px;font:600 14px var(--f-ui);cursor:pointer}
+.hintbox{background:var(--focusbg);border-radius:12px;padding:10px 14px;font-size:15px}
+/* opciones */
+.opt{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:13px 15px;border:2px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);font:600 17px var(--f-ui);cursor:pointer}
+.opt .k{width:28px;height:28px;flex:0 0 auto;border-radius:8px;border:2px solid var(--line);display:grid;place-items:center;font-size:13px;color:var(--mute)}
+.opt.sel{border-color:var(--focus);background:var(--focusbg)}.opt.sel .k{border-color:var(--focus);color:var(--focus)}
+.opt.wrong{border-color:var(--bad);opacity:.55;cursor:not-allowed}
+.opt.right{border-color:var(--ok);background:var(--okbg)}
+/* huecos */
+.eq{font:400 clamp(22px,4.6vw,30px)/1.9 var(--f-math);text-align:center}
+.eq .line{display:block}
+input.blank{width:3.1em;height:1.55em;font:inherit;font-size:1em;text-align:center;border:2px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink);margin:0 3px;vertical-align:middle}
+input.blank.ok{border-color:var(--ok);color:var(--ok)}input.blank.bad{border-color:var(--bad);color:var(--bad)}
+/* tarjetas */
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+.bolrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.bolx{background:var(--card);border:2px solid currentColor;border-radius:14px;padding:12px 14px;text-align:center}
+.bolx .who{font-weight:700;font-size:14px}
+.bolx .items{font-size:clamp(20px,4.6vw,32px);letter-spacing:0;white-space:nowrap;min-height:1.4em;color:var(--ink)}
+.bolx .tot{font-size:clamp(18px,3.4vw,24px);font-weight:700}
+.bolx .mth{font:400 clamp(17px,4vw,26px) var(--f-math);color:var(--ink)}
+.bolx.ana{color:var(--ana)}.bolx.luis{color:var(--luis)}
+.bolx .badge{display:inline-block;margin-top:6px;font-size:14px;font-weight:700;border-radius:99px;padding:2px 12px}
+.badge.good{background:var(--okbg);color:var(--ok)}.badge.off{background:var(--soft);color:var(--mute)}
+.xbtn{border:2px solid currentColor;background:transparent;border-radius:12px;padding:8px 14px;font:700 15px var(--f-ui);cursor:pointer;color:var(--focus)}
+.xbtn.ana{color:var(--ana)}.xbtn.luis{color:var(--luis)}
+.pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.pill{border:1px solid var(--line);border-radius:99px;padding:6px 14px;font-weight:600;background:var(--card)}
+.idea{text-align:center;font:italic 600 clamp(26px,6vw,38px) var(--f-math);color:var(--ok)}
+/* deslizadores */
+.sl{display:grid;grid-template-columns:5.2em 1fr 3.6em;align-items:center;gap:10px;font-weight:600}
+.sl input[type=range]{width:100%;accent-color:var(--focus);height:28px}
+.sl output{font-weight:700;text-align:right}
+.found{display:flex;flex-wrap:wrap;gap:8px;min-height:2.2em}
+.chip{border:1px solid currentColor;border-radius:99px;padding:3px 12px;font:600 15px var(--f-ui)}
+.chip.ok{color:var(--ok);background:var(--okbg)}.chip.no{color:var(--mute)}
+/* plano */
+canvas.plane{display:block;width:100%;max-width:500px;aspect-ratio:11/10;margin:0 auto;border:1px solid var(--line);border-radius:14px;background:var(--card);touch-action:none;cursor:grab}
+.plane.s{max-width:380px!important}
+.pstat{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;font-weight:600;min-height:2.2em;margin-top:8px}
 /* balanza */
-.bal{position:relative;width:min(90vw,460px);height:190px;--a:0deg}
-.beam{position:absolute;left:6%;right:6%;top:46px;height:6px;border-radius:3px;background:var(--ink);transform:rotate(var(--a));transform-origin:50% 50%}
-.pan{position:absolute;top:8px;transform:translateX(-50%) rotate(calc(var(--a) * -1));transform-origin:50% 0;min-width:96px;text-align:center;padding:10px 12px 14px;
- border:2px solid currentColor;border-top-width:0;border-radius:0 0 46px 46px;font-size:clamp(18px,3.4vw,30px);white-space:nowrap;transition:color .5s}
+.bal{position:relative;width:min(100%,440px);height:170px;margin:0 auto}
+.beam{position:absolute;left:54px;right:54px;top:40px;height:6px;border-radius:3px;background:var(--ink);transition:transform .6s cubic-bezier(.5,0,.3,1)}
+.pan{position:absolute;top:6px;transform:translateX(-50%);transform-origin:50% 0;min-width:92px;text-align:center;padding:8px 12px 12px;border:2px solid currentColor;border-top-width:0;border-radius:0 0 44px 44px;
+ font:400 clamp(18px,3.6vw,26px) var(--f-math);white-space:nowrap;transition:transform .6s cubic-bezier(.5,0,.3,1),color .3s;color:var(--ink)}
 .pan.l{left:0}.pan.r{left:100%}
-.stand{position:absolute;left:50%;top:50px;width:0;height:0;border-left:15px solid transparent;border-right:15px solid transparent;border-bottom:92px solid #3a3a3a;transform:translateX(-50%);z-index:-1}
-/* subtítulos y barra */
-#sub{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 64px);display:flex;justify-content:center;padding:0 14px;pointer-events:none}
-#sub p{margin:0;max-width:780px;text-align:center;font-family:"Source Sans 3",sans-serif;font-size:clamp(15px,2.4vw,21px);line-height:1.45;
- background:rgba(0,0,0,.72);padding:8px 14px;border-radius:6px;transition:opacity .35s}
-#sub p i{font-family:"Crimson Pro",serif;font-size:1.1em}
-#ask{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 62px);display:none;flex-direction:column;align-items:center;gap:8px;padding:0 14px;z-index:6;font-family:"Source Sans 3",sans-serif}
-#ask.on{display:flex}
-#ask p{margin:0;max-width:780px;text-align:center;font-size:clamp(15px,2.4vw,20px);line-height:1.4;background:rgba(0,0,0,.8);padding:6px 12px;border-radius:6px;color:var(--yel)}
-#ask p i,.opts i,.hint i{font-family:"Crimson Pro",serif;font-size:1.1em}
-.opts{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.opts button{font:600 clamp(14px,2.2vw,18px) "Source Sans 3",sans-serif;color:var(--ink);background:#0b0b0b;border:1px solid #555;border-radius:10px;padding:8px 14px;cursor:pointer}
-.opts button:hover{border-color:var(--yel)}
-.opts button.ok{border-color:var(--grn);color:var(--grn);box-shadow:0 0 14px rgba(131,193,103,.5)}
-.opts button.bad{border-color:var(--red);color:var(--red);animation:sh .35s}
-@keyframes sh{20%{transform:translateX(-6px)}60%{transform:translateX(6px)}}
-.hint{min-height:1.2em;max-width:780px;text-align:center;font-size:clamp(13px,2vw,17px);color:var(--red);background:rgba(0,0,0,.7);border-radius:6px;padding:0 8px}
-#bar{position:fixed;left:0;right:0;bottom:env(safe-area-inset-bottom,0px);display:flex;gap:5px;flex-wrap:wrap;justify-content:center;padding:10px;z-index:7}
-#bar button{font:600 .8rem "Source Sans 3",sans-serif;color:var(--ink);background:transparent;border:1px solid #333;padding:6px 11px;border-radius:999px;cursor:pointer}
-#bar button.on{border-color:var(--blue);color:var(--blue)}
-button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--yel);outline-offset:2px}
-/* laboratorio y ejercicios */
-#lab,#ex{position:fixed;inset:0;display:none;overflow-y:auto;padding:22px 14px 90px;background:#000;font-family:"Source Sans 3",sans-serif;z-index:3}
-#lab.on,#ex.on{display:block}
-#lab h2,#ex h2{font-family:"Crimson Pro",serif;font-weight:400;font-style:italic;font-size:2.2rem;text-align:center;margin:0 0 6px}
-.lead{max-width:640px;margin:0 auto 14px;text-align:center;color:var(--gry);font-size:.95rem;line-height:1.45}
-.labwrap{display:flex;gap:22px;justify-content:center;align-items:flex-start;flex-wrap:wrap;max-width:1000px;margin:0 auto}
-#cv{width:min(92vw,500px);aspect-ratio:1;border:1px solid #222;border-radius:8px;background:#050505;cursor:crosshair;touch-action:manipulation}
-.ctl{width:min(92vw,400px)}
-.eqc{border:1px solid currentColor;border-radius:10px;padding:10px 12px;margin-bottom:10px}
-.eqc .eqt{font-family:"Crimson Pro",serif;font-size:1.7rem;text-align:center;margin-bottom:4px}
-.eqc label{display:grid;grid-template-columns:2.2em 1fr;align-items:center;font-family:"Crimson Pro",serif;font-style:italic;font-size:1.2rem;color:var(--ink)}
-.eqc input[type=range]{width:100%;accent-color:currentColor}
-#lres{min-height:3.2em;font-size:1.05rem;line-height:1.4;margin:8px 0;text-align:center}
-#probe{min-height:3em;font-family:"Crimson Pro",serif;font-size:1.2rem;text-align:center;line-height:1.5}
-.pre{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
-.pre button,.acts button{font:600 .85rem "Source Sans 3",sans-serif;border-radius:8px;padding:7px 12px;cursor:pointer;background:transparent;color:var(--blue);border:1px solid var(--blue)}
-.card{max-width:640px;margin:0 auto 16px;border:1px solid #2a2a2a;border-radius:10px;padding:16px}
-.card h3{font-family:"Crimson Pro",serif;font-weight:600;margin:0 0 10px;font-size:1.3rem}
-.card .row{margin:6px 0}
-.card input{width:2.6em;height:1.6em;font:22px "Crimson Pro",serif;text-align:center;background:#111;color:var(--ink);border:1px solid #444;border-radius:4px;margin:2px}
-.card input.ok{border-color:var(--grn);color:var(--grn)}.card input.bad{border-color:var(--red);color:var(--red)}
-.acts{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
-.fb{text-align:center;margin-top:8px;min-height:1.3em;font-family:"Crimson Pro",serif;font-size:1.2rem}
-.steps{margin-top:8px;font-family:"Crimson Pro",serif;font-size:1.2rem;line-height:1.5}
-.steps .st{padding:3px 0;border-top:1px dashed #222}
-.cvx[hidden]{display:none}
-.cvx{display:block;margin:10px auto 0;width:min(80vw,300px);aspect-ratio:1;border:1px solid #222;border-radius:6px;background:#050505}
-#start{position:fixed;inset:0;z-index:20;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:20px}
-#start p{margin:0 0 8px;color:var(--gry);font-style:italic;font-size:1.3rem}
-#start small{font-family:"Source Sans 3",sans-serif;color:var(--gry);max-width:420px;line-height:1.45;margin-bottom:12px}
-#go{font:600 1.05rem "Source Sans 3",sans-serif;color:#000;background:var(--blue);border:none;border-radius:999px;padding:12px 24px;cursor:pointer}
-@media (max-width:700px){#bar{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;padding:8px 10px}#bar button{flex:0 0 auto}}
-@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important}}
+.stand{position:absolute;left:50%;top:44px;border-left:14px solid transparent;border-right:14px solid transparent;border-bottom:96px solid var(--line);transform:translateX(-50%);z-index:-1}
+.balmsg{text-align:center;min-height:1.6em;font-weight:600}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+/* sustitución */
+.eqline{font:400 clamp(26px,5.6vw,38px) var(--f-math);text-align:center;line-height:1.8}
+button.slot{font:inherit;color:var(--focus);border:2px dashed var(--focus);background:var(--focusbg);border-radius:10px;padding:0 10px;cursor:pointer;animation:pulse 1.4s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px transparent;background:transparent}}
+.tile{display:inline-block;border:2px solid var(--luis);color:var(--luis);border-radius:10px;padding:0 10px;font:400 clamp(22px,4.6vw,30px) var(--f-math)}
+.newpart{color:var(--luis);animation:in .5s both}
+.bill{font:700 clamp(30px,8vw,48px) var(--f-ui);border:2px solid var(--ok);background:var(--okbg);color:var(--ink);border-radius:14px;padding:14px 24px;cursor:pointer}
+.bills{display:flex;gap:12px;justify-content:center;align-items:center;min-height:90px}
+/* sistemas alineados */
+.sys{display:flex;align-items:center;justify-content:center;gap:6px}
+.brace{font:300 clamp(54px,10vw,90px)/1 var(--f-math);transform:scaleX(.75)}
+.eqs{display:flex;flex-direction:column}
+.g5{display:grid;grid-template-columns:1em 2.5em 1em 2.7em 1.2em 2.2em;justify-items:end;align-items:center;font:400 clamp(22px,4.6vw,32px)/1.4 var(--f-math)}
+.g5 span{padding:0 1px}
+.sys.sm .g5{font-size:clamp(19px,3.6vw,26px)}.sys.sm .brace{font-size:clamp(44px,7vw,66px)}
+/* ayuda de los retos */
+.helpbar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;font-size:14px;color:var(--mute)}
+.steps .st{padding:4px 0;border-top:1px dashed var(--line);font:400 19px/1.5 var(--f-math)}
+canvas.mini{display:block;width:min(100%,300px);aspect-ratio:1;margin:8px auto 0;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+canvas.mini[hidden]{display:none}
+/* menú e inicio */
+#menuP{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.45);display:flex;justify-content:flex-start}
+#menuP[hidden]{display:none}
+#menuP .panel{width:min(86vw,340px);height:100%;background:var(--card);padding:18px 16px;overflow-y:auto;border-right:1px solid var(--line)}
+#menuP h2{margin:0 0 10px;font-size:18px}
+#menuP button.lv{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:10px 12px;margin-bottom:8px;font:600 15px var(--f-ui);cursor:pointer}
+#menuP button.lv small{display:block;color:var(--mute);font-weight:500}
+#start{position:fixed;inset:0;z-index:40;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px 16px}
+#start h1{margin:0;font:italic 600 clamp(34px,8vw,54px)/1.1 var(--f-math);text-wrap:balance}
+#start p{margin:0;color:var(--mute);max-width:420px}
+#start .btns{display:flex;flex-direction:column;gap:10px;width:min(100%,320px)}
+#start button{padding:14px;border-radius:14px;border:2px solid var(--ok);font:700 17px var(--f-ui);cursor:pointer;background:var(--ok);color:var(--on-ok)}
+#start button.alt{background:transparent;color:var(--ok)}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<canvas id="gl"></canvas>
-<div id="top"></div>
-<div id="stage"></div>
-<div id="sub"><p id="subp"></p></div>
-<div id="ask"></div>
-
-<div id="lab">
- <h2>Laboratorio</h2>
- <p class="lead">Mueve los deslizadores y mira cómo se portan las rectas. Toca el plano para probar una pareja de precios y ver si cumple las dos ecuaciones.</p>
- <div class="labwrap">
-  <canvas id="cv" aria-label="Plano con las dos rectas"></canvas>
-  <div class="ctl">
-   <div class="eqc cb"><div class="eqt" id="lt1"></div>
-    <label>x<input type="range" min="-9" max="9" step="1" data-k="a1" aria-label="número de la x en la primera ecuación"></label>
-    <label>y<input type="range" min="-9" max="9" step="1" data-k="b1" aria-label="número de la y en la primera ecuación"></label>
-    <label>=<input type="range" min="-24" max="24" step="1" data-k="c1" aria-label="resultado de la primera ecuación"></label></div>
-   <div class="eqc cy"><div class="eqt" id="lt2"></div>
-    <label>x<input type="range" min="-9" max="9" step="1" data-k="a2" aria-label="número de la x en la segunda ecuación"></label>
-    <label>y<input type="range" min="-9" max="9" step="1" data-k="b2" aria-label="número de la y en la segunda ecuación"></label>
-    <label>=<input type="range" min="-24" max="24" step="1" data-k="c2" aria-label="resultado de la segunda ecuación"></label></div>
-   <div id="lres" aria-live="polite"></div>
-   <div class="pre"><button data-p="0">La de la clase</button><button data-p="1">Paralelas</button><button data-p="2">La misma recta</button><button data-p="3">Al azar</button></div>
-   <div id="probe"></div>
-  </div>
- </div>
- <div class="acts"><button id="tonext">Ir a los ejercicios ▶</button></div>
+<div id="app">
+ <header id="hd"><button class="ib" id="menu" aria-label="Ver niveles">☰</button><div id="prog" role="progressbar" aria-label="Progreso de la lección"></div><button class="ib" id="snd" aria-label="Activar o silenciar la voz">🔊</button></header>
+ <main id="main"><div class="lvl" id="lvl"></div><p id="prompt"></p><button class="say" id="say">Escuchar otra vez</button><div id="vis"></div></main>
+ <footer id="ft"><div id="sheet" hidden></div><button id="go">Continuar</button></footer>
 </div>
+<div id="menuP" hidden><div class="panel"><h2>Niveles</h2><div id="menuL"></div></div></div>
+<div id="start"><h1>Sistemas de ecuaciones</h1><p>Aprendes haciendo. Mueves, pruebas, te equivocas un poco y descubres por qué funciona. Son cinco niveles y unos 25 minutos, con narrador opcional.</p><div class="btns"><button id="go0">Comenzar</button><button class="alt" id="goC" hidden>Seguir donde lo dejé</button></div></div>
 
-<div id="ex"><h2>Ahora te toca a ti</h2><p class="lead">Resuelve con el método que prefieras. Si te atascas, pide la solución paso a paso con cualquiera de los cuatro caminos.</p><div id="exl"></div><div class="acts"><button id="regen">Generar otros</button></div></div>
-
-<div id="bar"><button id="pp" aria-label="Pausar">❚❚</button><button id="mute" aria-label="Silenciar narrador">🔊</button><button id="spd" aria-label="Velocidad">1×</button></div>
-<div id="start"><div class="big">Sistemas de ecuaciones</div><p>cuatro caminos hacia la misma respuesta</p><small>Una clase con narrador. Usa la voz de tu navegador, así que mejor con sonido. También tiene subtítulos, por si acaso.</small><button id="go">▶ Comenzar con narrador</button></div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const $=id=>document.getElementById(id);
-const C={blue:'#58C4DD',yel:'#F7E463',red:'#FC6255',grn:'#83C167',brn:'#C08A5B',ink:'#ece6d6'};
+const V=t=>t.replace(/\{(\w)\}/g,'<i class="v">$1</i>');
+const fmt=n=>{const r=Math.round(n*100)/100;return Number.isInteger(r)?''+r:(''+r).replace('.',',')};
+const numS=c=>c<0?'−'+(-c):''+c;
+const css=()=>{const s=getComputedStyle(document.documentElement);return k=>s.getPropertyValue('--'+k).trim()};
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-let SPEED=+(new URLSearchParams(location.search).get('speed'))||1;
-let tok=0,paused=false;
-const X='x';
-function wait(ms){const t=tok;ms/=SPEED;return new Promise((res,rej)=>{let e=0,l=performance.now();(function f(n){if(t!==tok)return rej(X);if(!paused)e+=n-l;l=n;e>=ms?res():requestAnimationFrame(f)})(l)})}
-function tween(ms,fn){const t=tok;if(reduce)ms=Math.min(ms,150);ms/=SPEED;return new Promise((res,rej)=>{let e=0,l=performance.now();(function f(n){if(t!==tok)return rej(X);if(!paused)e+=n-l;l=n;const k=Math.min(e/ms,1),q=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;fn(q);k>=1?res():requestAnimationFrame(f)})(l)})}
-function until(f){const t=tok;return new Promise((res,rej)=>{(function c(){if(t!==tok)return rej(X);f()?res():requestAnimationFrame(c)})()})}
-async function anim(el,kf,ms=700){const t=tok;const a=el.animate(kf,{duration:(reduce?100:ms)/SPEED,fill:'forwards',easing:'cubic-bezier(.65,0,.35,1)'});
- try{await a.finished}catch(e){}if(t!==tok)throw X}
-const write=(el,ms=700)=>anim(el,[{opacity:0,filter:'blur(6px)',transform:'translateY(6px)'},{opacity:1,filter:'blur(0)',transform:'none'}],ms);
-const fade=(el,ms=600)=>anim(el,[{opacity:getComputedStyle(el).opacity},{opacity:0}],ms);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
-/* ===== voz ===== */
-let voice=null,muted=false;const SS=window.speechSynthesis;
+/* ===== voz (opcional) ===== */
+const SS=window.speechSynthesis;let voice=null,SND=true;
 function pickVoice(){if(!SS)return;const v=SS.getVoices().filter(v=>/^es/i.test(v.lang));
  voice=v.find(v=>/es-(MX|US|419)/i.test(v.lang)&&/google|natural|neural/i.test(v.name))||v.find(v=>/natural|neural|google/i.test(v.name))||v.find(v=>/es-(MX|US|419)/i.test(v.lang))||v[0]||null}
 if(SS){pickVoice();SS.onvoiceschanged=pickVoice}
-/* {x} y {y} son las incógnitas; así el lector dice "equis" y "ye" sin confundirse con la conjunción */
-const V=t=>t.replace(/\{(\w)\}/g,'<i>$1</i>');
-const spoken=t=>t.replace(/\{x\}/g,' equis ').replace(/\{y\}/g,' ye ').replace(/\{(\w)\}/g,' $1 ')
+const spoken=t=>t.replace(/<[^>]+>/g,' ').replace(/\[\[[^\]]*\]\]/g,' espacio ').replace(/\{x\}/g,' equis ').replace(/\{y\}/g,' ye ').replace(/\{(\w)\}/g,' $1 ')
  .replace(/\(([−-]?\d+), ([−-]?\d+)\)/g,'$1 coma $2').replace(/(\d)\.(\d)/g,'$1 coma $2')
  .replace(/×/g,' por ').replace(/ · /g,' por ').replace(/·/g,' por ').replace(/−/g,' menos ').replace(/\+/g,' más ')
- .replace(/÷|\//g,' entre ').replace(/ = /g,' igual a ').replace(/=/g,' igual a ').replace(/\$(\d+)/g,'$1 dólares')
- .replace(/[①②]/g,m=>m==='①'?' la primera ':' la segunda ');
-function speak(t){const tk=tok;return new Promise((res,rej)=>{if(!SS||muted||!voice)return res(false);
- const u=new SpeechSynthesisUtterance(spoken(t));u.voice=voice;u.lang=voice.lang;u.rate=Math.min(1.6,.98*SPEED);u.pitch=.95;let done=false;u.onend=u.onerror=()=>done=true;SS.speak(u);
- const t0=performance.now();(function f(){if(tk!==tok){SS.cancel();return rej(X)}if(done||muted||(!paused&&!SS.speaking&&performance.now()-t0>1500))return res(true);requestAnimationFrame(f)})()})}
-async function sub(t,say){const p=$('subp');p.style.opacity=0;await wait(200);p.innerHTML=V(t);p.style.opacity=1;
- const ok=await speak(say??t);if(ok){await wait(450)}else await wait(Math.max(2600,t.length*58))}
-/* narra mientras ocurre la animación */
-const say=(t,fn,s)=>Promise.all([sub(t,s),fn?fn():0]);
-
-/* pregunta de predicción: el panel reemplaza al subtítulo hasta acertar */
-async function choose(q,opts,ans,hints={}){
- const a=$('ask'),idx=opts.map((_,i)=>i);
- for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]]}
- $('subp').style.opacity=0;
- a.innerHTML=`<p>${V(q)}</p><div class="opts">${idx.map(i=>`<button data-i="${i}">${V(opts[i])}</button>`).join('')}</div><div class="hint"></div>`;a.classList.add('on');
- let done=false;speak(q).catch(()=>{});
- a.querySelectorAll('button').forEach(b=>b.onclick=()=>{if(done)return;const i=+b.dataset.i;
-  if(i===ans){done=true;b.classList.add('ok');if(SS)SS.cancel()}
-  else{b.classList.add('bad');const h=hints[i]||'Casi. Piénsalo otra vez.';a.querySelector('.hint').innerHTML=V(h);if(SS)SS.cancel();speak(h).catch(()=>{})}});
- await until(()=>done);await wait(700);a.classList.remove('on')}
-
-/* ===== utilidades de pantalla ===== */
-const St=()=>$('stage');
-function setStage(h){St().innerHTML=h}
-function topb(h){const e=$('top');e.innerHTML=V(h||'');e.classList.toggle('on',!!h)}
-const glow=(el,c)=>{if(!el)return;el.style.color=c;el.style.textShadow=c?`0 0 14px ${c}`:''};
-async function fly(src,dst,color,txt){const a=src.getBoundingClientRect(),b=dst.getBoundingClientRect();const c=document.createElement('div');c.className='fly';
- c.textContent=txt??src.textContent;c.style.cssText=`left:${a.left}px;top:${a.top}px;width:${a.width}px;height:${a.height}px;color:${color}`;document.body.appendChild(c);
- const dx=b.left-a.left,dy=b.top-a.top;try{await anim(c,[{transform:'none'},{transform:`translate(${dx/2}px,${dy/2-50}px) scale(1.15)`},{transform:`translate(${dx}px,${dy}px)`}],850)}finally{c.remove()}}
-
-/* ecuaciones: filas alineadas [op][ax][signo][by][=][c] */
-const tm=(k,v)=>{const a=Math.abs(k);return (k<0?'−':'')+(a===1?'':a)+`<i>${v}</i>`};
-const num=c=>c<0?'−'+(-c):''+c;
-const g5=(a,b,c,cls='',id='',op='')=>`<div class="g5 ${cls}" id="${id}"><span>${op}</span><span>${a==null?'':tm(a,'x')}</span><span>${a==null||b==null?'':(b<0?'−':'+')}</span><span>${b==null?'':tm(a==null?b:Math.abs(b),'y')}</span><span>=</span><span>${num(c)}</span></div>`;
-const SYS=(A,B,id='S',sm='')=>`<div class="sys ${sm}" id="${id}"><span class="brace">{</span><div class="eqs">${g5(A[0],A[1],A[2],'cb',id+'1')}${g5(B[0],B[1],B[2],'cy',id+'2')}</div></div>`;
-const cell=(id,n)=>document.querySelector(`#${id} span:nth-child(${n})`); /* 2: x, 4: y, 6: resultado */
-const fr=(n,d)=>`<span class="frac"><span>${n}</span><span>${d}</span></span>`;
-const EA=[3,2,12],EB=[1,4,14];
-
-function board(extra=''){setStage(SYS(EA,EB,'S','sm')+extra+`<div class="work" id="work"></div>`)}
-function addLn(html,o={}){const d=document.createElement('div');d.className='ln '+(o.cls||'');d.innerHTML=`<span class="tag">${V(o.tag||'')}</span><span class="m">${V(html)}</span><span class="note">${V(o.note||'')}</span>`;d.style.opacity=0;$('work').appendChild(d);return d}
-async function put(html,o){const d=addLn(html,o);await write(d);return d}
-async function clearWork(){const w=$('work');if(!w)return;await anim(w,[{opacity:1},{opacity:0}],350);w.getAnimations().forEach(a=>a.cancel());w.innerHTML=''}
-
-/* ===== 3D: plano cartesiano ===== */
-const XMIN=-1,XMAX=10,YMIN=-1,YMAX=9;
-const RD=new THREE.WebGLRenderer({canvas:$('gl'),antialias:true,alpha:true});RD.setPixelRatio(Math.min(devicePixelRatio,2));
-const sc=new THREE.Scene();const cam=new THREE.PerspectiveCamera(40,1,.1,100);
-function rs(){RD.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.setViewOffset(innerWidth,innerHeight,0,Math.round(innerHeight*.1),innerWidth,innerHeight);cam.updateProjectionMatrix()}addEventListener('resize',rs);rs();
-{const v=[];for(let i=XMIN;i<=XMAX;i++)v.push(i,YMIN,0,i,YMAX,0);for(let j=YMIN;j<=YMAX;j++)v.push(XMIN,j,0,XMAX,j,0);
- const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));sc.add(new THREE.LineSegments(g,new THREE.LineBasicMaterial({color:0x163038})));
- const w=[XMIN,0,.01,XMAX,0,.01,0,YMIN,.01,0,YMAX,.01],g2=new THREE.BufferGeometry();g2.setAttribute('position',new THREE.Float32BufferAttribute(w,3));
- sc.add(new THREE.LineSegments(g2,new THREE.LineBasicMaterial({color:0x888888})))}
-function textSprite(t,color='#ece6d6',w=2.2,h=.55,font='italic 56px "Crimson Pro",Georgia,serif'){const c=document.createElement('canvas');c.width=512;c.height=128;const x=c.getContext('2d');x.font=font;x.fillStyle=color;x.textAlign='center';x.textBaseline='middle';x.fillText(t,256,66);
- const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false,transparent:true}));sp.scale.set(w,h,1);sp.renderOrder=10;return sp}
-function emojiSprite(ch,s=1){const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');x.font='96px serif';x.textAlign='center';x.textBaseline='middle';x.fillText(ch,64,70);
- const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false,transparent:true}));sp.scale.set(s,s,s);sp.renderOrder=11;return sp}
-function buildLabels(){for(let i=1;i<=XMAX-1;i++){const s=textSprite(''+i,'#c8c8c8',1.6,.4,'60px "Source Sans 3",sans-serif');s.position.set(i,-.55,0);sc.add(s)}
- for(let j=1;j<=YMAX-1;j++){const s=textSprite(''+j,'#c8c8c8',1.6,.4,'60px "Source Sans 3",sans-serif');s.position.set(-.6,j,0);sc.add(s)}
- const a=textSprite('x  precio del pan','#ece6d6',3.6,.9);a.position.set(8.1,.75,0);sc.add(a);
- const b=textSprite('y  precio del jugo','#ece6d6',3.6,.9);b.position.set(2.1,8.4,0);sc.add(b)}
-document.fonts.ready.then(buildLabels);
-let objs=[];const add3=o=>{sc.add(o);objs.push(o);return o};const rm3=o=>{if(o){sc.remove(o);objs=objs.filter(q=>q!==o)}};
-function clear3d(){objs.forEach(o=>sc.remove(o));objs=[]}
-function ends(a,b,c){const P=[],ok=(x,y)=>!P.some(p=>Math.abs(p[0]-x)<1e-9&&Math.abs(p[1]-y)<1e-9);
- if(b!==0)for(const x of[XMIN,XMAX]){const y=(c-a*x)/b;if(y>=YMIN-1e-9&&y<=YMAX+1e-9&&ok(x,y))P.push([x,y])}
- if(a!==0)for(const y of[YMIN,YMAX]){const x=(c-b*y)/a;if(x>=XMIN-1e-9&&x<=XMAX+1e-9&&ok(x,y))P.push([x,y])}
- P.sort((p,q)=>p[0]-q[0]||p[1]-q[1]);return P.slice(0,2)}
-function seg3(P,color,r=.055,z=.03){const g=new THREE.CylinderGeometry(r,r,1,10);g.translate(0,.5,0);const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color}));
- const p=new THREE.Vector3(P[0][0],P[0][1],z),q=new THREE.Vector3(P[1][0],P[1][1],z),d=q.clone().sub(p);m.userData.len=d.length();
- m.position.copy(p);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.clone().normalize());m.scale.set(1,.0001,1);return add3(m)}
-const line3=(a,b,c,color,r,z)=>seg3(ends(a,b,c),color,r,z);
-const growSeg=(m,ms=1000)=>tween(ms,k=>{m.scale.y=Math.max(.0001,m.userData.len*k)});
-function dot3(x,y,color,r=.17){const m=new THREE.Mesh(new THREE.SphereGeometry(r,16,12),new THREE.MeshBasicMaterial({color}));m.position.set(x,y,.1);m.scale.setScalar(.0001);return add3(m)}
-const pop=(m,ms=450)=>tween(ms,k=>m.scale.setScalar(Math.max(.0001,k)));
-function lab3(t,x,y,color='#ece6d6'){const s=textSprite(t,color,3.4,.85);s.position.set(x+1.3,y+.6,.3);s.material.opacity=0;return add3(s)}
-const showSp=(s,ms=500)=>tween(ms,k=>{s.material.opacity=k});
-function ring3(x,y,color=0xFC6255){const m=new THREE.Mesh(new THREE.RingGeometry(.34,.42,40),new THREE.MeshBasicMaterial({color,transparent:true,opacity:.9}));m.position.set(x,y,.12);return add3(m)}
-let t3=0,last=performance.now(),show3d=false;
-(function loop(n){const dt=(n-last)/1000;last=n;if(!paused)t3+=dt;
- const A=innerWidth/innerHeight,d=Math.max(17,12.8/(.728*A));
- cam.position.set(4.5+Math.sin(t3*.25)*d*.07,3.4-d*.5,d*.85);cam.lookAt(4.5,3.4,0);
- if(show3d)RD.render(sc,cam);requestAnimationFrame(loop)})(last);
-function gl(on){show3d=on;$('gl').classList.toggle('on',on)}
-
-/* ===== escenas ===== */
-const scenes=[
-{name:'El misterio',async run(){
- setStage(`<div class="big" id="q">¿Cuánto cuesta un pan?</div>`);await write($('q'),1200);
- await sub('Imagina una panadería sin precios en la pared. Nadie te dice cuánto cuesta un pan, ni cuánto un jugo.');await fade($('q'));
- const bol=(id,cls,who,tot)=>`<div class="bol ${cls}" id="${id}"><div class="who">🧾 ${who}</div><div class="items" id="${id}i"></div><div class="tot" id="${id}t" style="opacity:0">${tot}</div></div>`;
- setStage(`<div class="row">${bol('bA','cb','Ana','= $12')}${bol('bB','cy','Luis','= $14')}</div><div class="emo" id="emo" style="opacity:0"></div>`);
- const fill=async(id,str)=>{for(const ch of Array.from(str)){const s=document.createElement('span');s.textContent=ch;$(id).appendChild(s);write(s,300);await wait(120)}};
- await say('Pero encuentras dos boletas viejas. Ana se llevó tres panes y dos jugos, y pagó doce dólares.',async()=>{await fill('bAi','🥖🥖🥖🧃🧃');await write($('bAt'))});
- await say('Luis se llevó un pan y cuatro jugos, y pagó catorce.',async()=>{await fill('bBi','🥖🧃🧃🧃🧃');await write($('bBt'))});
- $('emo').textContent='🕵️ Luis compró menos cosas y pagó más';
- await say('Fíjate en algo curioso. Luis compró menos cosas que Ana y pagó más. Entonces el jugo tiene que ser más caro que el pan. Ya estás pensando como detective.',async()=>{await write($('emo'))});
- await say('Dibujar panes cansa. Mejor llamemos {x} al precio de un pan y {y} al precio de un jugo.',async()=>{
-  for(const [id,h] of [['bAi','3<i>x</i> + 2<i>y</i>'],['bBi','<i>x</i> + 4<i>y</i>']]){const e=$(id);await anim(e,[{opacity:1},{opacity:0}],400);e.innerHTML=h;e.classList.add('eqt');await write(e,600)}});
- await sub('Esos dos números que no conocemos se llaman incógnitas. Y cada boleta es ahora una ecuación lineal. Lineal, porque {x} y {y} aparecen solas, sin elevarse ni multiplicarse entre ellas. Más adelante verás que eso significa que se dibujan como una recta.');
- setStage(`${SYS(EA,EB,'S')}<div class="cap2" id="cp" style="opacity:0">un sistema de dos ecuaciones con dos incógnitas</div>`);$('S').style.opacity=0;
- await say('Las dos juntas forman un sistema, y se escribe con una llave. Resolverlo es encontrar la pareja de precios que hace verdaderas las dos boletas a la vez.',async()=>{await write($('S'),900);await write($('cp'))});
- setStage(`<div class="fx">Solo la boleta de Ana: <span class="cb">3<i>x</i> + 2<i>y</i> = 12</span></div>`);
- await choose('Con solo la boleta de Ana, 3{x} + 2{y} = 12, ¿cuál de estas parejas de precios, pan y jugo, no es posible?',['(0, 6)','(4, 0)','(2, 3)','(3, 2)'],3,
-  {0:'Probemos: 3 · 0 + 2 · 6 = 12. Esa sí cumple.',1:'3 · 4 + 2 · 0 = 12. Esa también cumple.',2:'3 · 2 + 2 · 3 = 6 + 6 = 12. Cumple.'});
- const chip=(t,c,id='')=>`<span class="chip ${c}" id="${id}">${t}</span>`;
- setStage(`<div class="fx">Parejas que cumplen la boleta de Ana</div><div class="chips cb" id="chA">${chip('(0, 6)','','a06')}${chip('(2, 3)','','a23')}${chip('(4, 0)','','a40')}<span class="cap2"> y muchas más</span></div>`);
- await sub('Tres por tres más dos por dos da trece, se pasa por uno. Las otras sí dan doce, y hay muchas más. Una sola boleta deja demasiadas parejas posibles.');
- setStage(`<div class="fx">Parejas que cumplen cada boleta</div><div class="chips cb" id="chA">${chip('(0, 6)','','a06')}${chip('(2, 3)','','a23')}${chip('(4, 0)','','a40')}<span class="cap2"> Ana</span></div><div class="chips cy" id="chB" style="opacity:0">${chip('(14, 0)','')}${chip('(6, 2)','','b62')}${chip('(2, 3)','','b23')}<span class="cap2"> Luis</span></div>`);
- await say('Pero Luis también compró, y sus parejas posibles son otras.',async()=>{await write($('chB'))});
- await choose('Mira las dos listas. ¿Qué pareja aparece en las dos?',['(0, 6)','(4, 0)','(2, 3)','(6, 2)'],2,
-  {0:'Está en la lista de Ana, pero Luis pagaría 1 · 0 + 4 · 6 = 24, no 14.',1:'Está en la de Ana, pero Luis pagaría solo 4 dólares.',3:'Está en la lista de Luis, pero Ana pagaría 3 · 6 + 2 · 2 = 22, no 12.'});
- $('a23').classList.add('hit');$('b23').classList.add('hit');
- await sub('Esa es. Pan a dos dólares y jugo a tres. Comprobamos: tres por dos más dos por tres da doce, y dos más cuatro por tres da catorce. Las dos boletas cuadran.');
- await sub('Acabamos de resolver un sistema probando. Pero ¿y si los precios llevaran centavos? ¿Y si hubiera cinco boletas? Probar a ciegas no es un método.');
- const mc=(i,n)=>`<div class="mc" style="opacity:0"><div class="ico">${i}</div><h4>${n}</h4></div>`;
- setStage(`<div class="row">${mc('📈','Gráfico')}${mc('🔁','Sustitución')}${mc('⚖️','Igualación')}${mc('➕','Reducción')}</div><div class="big cg" id="idea" style="opacity:0">combinar verdades</div>`);
- await say('Hay cuatro métodos, y los vas a ver todos con esta misma panadería: el gráfico, la sustitución, la igualación y la reducción.',async()=>{for(const m of document.querySelectorAll('.mc')){write(m,500);await wait(900)}});
- await say('Parecen distintos, pero persiguen una sola idea. Cada ecuación es una verdad. Resolver un sistema es combinar esas verdades hasta fabricar una nueva que tenga una sola incógnita. Esa frase la voy a repetir, porque lo explica todo.',async()=>{await wait(1500);await write($('idea'),1000)});
-}},
-
-{name:'Gráfico',async run(){
- setStage('');clear3d();gl(true);topb('');
- await sub('El primer método es el que se ve. Cada pista se puede dibujar.');
- await sub('Pondré el precio del pan en el eje horizontal y el del jugo en el vertical. Cada punto del plano es una pareja posible de precios.');
- {const d=dot3(5,1,0xffffff),l=lab3('(5, 1)',5,1);await say('Este punto, por ejemplo, sería pan a cinco dólares y jugo a uno.',async()=>{await pop(d);await showSp(l)});await wait(500);rm3(d);rm3(l)}
- topb('<span class="cb">3<i>x</i> + 2<i>y</i> = 12</span>');
- await sub('La boleta de Ana dice 3{x} + 2{y} = 12. Y para dibujar una recta bastan dos puntos.');
- const p1=dot3(0,6,0x58C4DD),l1=lab3('(0, 6)',0,6,C.blue),p2=dot3(4,0,0x58C4DD),l2=lab3('(4, 0)',4,0,C.blue);
- await say('Si el pan costara cero, el jugo costaría seis. Ahí va el primer punto.',async()=>{await pop(p1);await showSp(l1)});
- await say('Y si el jugo costara cero, el pan costaría cuatro. Ahí va el segundo.',async()=>{await pop(p2);await showSp(l2)});
- const LA=line3(3,2,12,0x58C4DD);
- await say('Los uno con una recta y la prolongo. Cada punto de esta recta es una pareja de precios que cumple la boleta de Ana. Hay infinitas, y por eso necesitamos la otra pista.',async()=>{await growSeg(LA,1400)});
- topb('<span class="cb">3<i>x</i> + 2<i>y</i> = 12</span><span class="cy"><i>x</i> + 4<i>y</i> = 14</span>');
- await sub('Hagamos lo mismo con Luis: {x} + 4{y} = 14.');
- const q1=dot3(0,3.5,0xF7E463),m1=lab3('(0, 3.5)',0,3.5,C.yel),q2=dot3(6,2,0xF7E463),m2=lab3('(6, 2)',6,2,C.yel);
- await say('Si el pan fuera gratis, cuatro jugos cuestan catorce, así que cada uno costaría tres con cinco. Primer punto.',async()=>{await pop(q1);await showSp(m1)});
- await say('Si el pan cuesta seis, los cuatro jugos suman ocho, y cada jugo cuesta dos. Segundo punto.',async()=>{await pop(q2);await showSp(m2)});
- const LB=line3(1,4,14,0xF7E463);
- await say('Y trazo la recta.',async()=>{await growSeg(LB,1400)});
- await choose('Ahora tienes dos rectas. Cada una es una lista infinita de parejas posibles. ¿Dónde esperas encontrar la pareja que sirve para las dos boletas?',
-  ['En el punto donde se cruzan','En el origen, el punto (0, 0)','En cualquier punto de la recta azul'],0,
-  {1:'En el origen todo costaría cero, y las boletas dicen otra cosa.',2:'Un punto de la recta azul cumple la boleta de Ana, pero no necesariamente la de Luis.'});
- const S=dot3(2,3,0x83C167,.24),sl=lab3('(2, 3)',2,3,C.grn),tg=emojiSprite('🎯',1.1);tg.position.set(2,3,.4);tg.scale.setScalar(.0001);add3(tg);
- topb('<span class="cb">3<i>x</i> + 2<i>y</i> = 12</span><span class="cy"><i>x</i> + 4<i>y</i> = 14</span><span class="cg">solución: (2, 3)</span>');
- await say('Se cruzan en dos y tres. Ese punto está sobre las dos rectas, así que cumple las dos ecuaciones a la vez. No es un truco: es la definición misma de solución.',async()=>{await pop(S);await showSp(sl);await tween(500,k=>tg.scale.setScalar(Math.max(.0001,1.1*k)))});
- const rg=ring3(2,3);
- await say('El método gráfico tiene un límite honesto. Si las rectas se cruzaran en 2,37 y 3,81, tu ojo no distinguiría eso de 2,4 y 3,8. Dentro del círculo rojo cabe mucha duda.',async()=>{await tween(900,k=>rg.scale.setScalar(1+k*1.6));await tween(900,k=>rg.scale.setScalar(2.6-k*1.6))});
- await sub('Por eso el gráfico es perfecto para entender y para comprobar. Y los otros tres métodos, para calcular con exactitud.');
-}},
-
-{name:'Tres destinos',async run(){
- setStage('');clear3d();gl(true);
- const eA='<span class="cb">3<i>x</i> + 2<i>y</i> = 12</span>';
- topb(eA);const LA=line3(3,2,12,0x58C4DD,.075);
- await say('Dos rectas en un plano pueden hacer tres cosas distintas. Mira la de Ana, que ya conocemos.',async()=>{await growSeg(LA,1200)});
- let LB=line3(1,4,14,0xF7E463,.045);const D=dot3(2,3,0x83C167,.22);
- topb(eA+'<span class="cy"><i>x</i> + 4<i>y</i> = 14</span>');
- await say('La primera ya la viste: se cruzan en un solo punto. Una sola solución. Es el caso normal.',async()=>{await growSeg(LB,1000);await pop(D)});
- rm3(LB);rm3(D);
- LB=line3(3,2,6,0xF7E463,.045);
- topb(eA+'<span class="cy">3<i>x</i> + 2<i>y</i> = 6</span>');
- await say('Ahora imagina que Luis se llevó tres panes y dos jugos, igual que Ana, pero pagó seis dólares. La misma compra, el mismo día, en la misma panadería, con dos precios distintos.',async()=>{await growSeg(LB,1200)});
- topb(eA+'<span class="cy">3<i>x</i> + 2<i>y</i> = 6</span><span class="cr">al restar: 0 = 6 ✗</span>');
- await sub('Las rectas son paralelas y jamás se tocan. Ninguna pareja de precios hace verdaderas las dos boletas: el sistema es imposible. Y fíjate que el álgebra lo avisa solo. Si restas las ecuaciones, queda cero igual a seis, un absurdo.');
- rm3(LB);
- LB=line3(6,4,24,0xF7E463,.04);
- topb(eA+'<span class="cy">6<i>x</i> + 4<i>y</i> = 24</span>');
- await say('El último caso es el más escurridizo. Luis se llevó seis panes y cuatro jugos, y pagó veinticuatro. Es exactamente la compra de Ana, duplicada.',async()=>{await growSeg(LB,1200)});
- topb(eA+'<span class="cy">6<i>x</i> + 4<i>y</i> = 24</span><span class="cg">al dividir entre 2 y restar: 0 = 0</span>');
- await sub('Las dos rectas son la misma, así que cada punto de una es punto de la otra. Hay infinitas soluciones. La segunda boleta no aportó nada nuevo: era la primera disfrazada, y al restar queda cero igual a cero, algo cierto pero vacío.');
- topb('<span class="cg">un punto</span><span class="cr">ninguno</span><span class="cy">infinitos</span>');
- await sub('En los libros les ponen nombres largos. Tú quédate con la idea: un punto, ninguno o infinitos. Y cuando un cálculo te dé cero igual a un número raro, o cero igual a cero, ya sabes de cuál caso hablas.');
-}},
-
-{name:'Sustitución',async run(){
- gl(false);topb('');
- setStage(`<div class="emo" id="emo" style="font-size:clamp(22px,4vw,38px)">💵 $20 &nbsp;=&nbsp; 💵 $10 &nbsp;+&nbsp; 💵 $10</div>`);$('emo').style.opacity=0;
- await say('El segundo método es la sustitución, y se apoya en una idea de cambio que ya usas sin darte cuenta.',async()=>{await write($('emo'))});
- await sub('Si un billete de veinte vale lo mismo que dos de diez, puedes pagar con cualquiera de los dos y nada cambia. Con las incógnitas pasa igual: si descubro que {x} es lo mismo que otra expresión, puedo cambiar una por otra.');
- board(`<div class="plan" id="plan" style="opacity:0"><span>1 · despejar</span><span>2 · sustituir</span><span>3 · resolver</span><span>4 · volver</span></div>`);$('S').style.opacity=0;
- await say('El plan tiene cuatro pasos: despejar una incógnita, sustituirla en la otra ecuación, resolver lo que quede y volver a buscar la primera.',async()=>{await write($('S'));await write($('plan'))});
- glow(cell('S2',2),C.yel);
- await sub('Despejar es dejar una incógnita solita. Conviene elegir la más fácil. En la segunda ecuación la {x} no tiene número delante, vale uno, y despejarla casi no cuesta.');
- const L1=await put('<i>x</i> + 4<i>y</i> = 14',{cls:'cy',tag:'②'});
- const L2=await put('<i>x</i> = 14 − 4<i>y</i>',{cls:'cy',note:'restamos 4y de los dos lados'});
- L2.style.color=C.yel;
- await sub('Restamos 4{y} de los dos lados, y {x} queda sola. Es una receta: el precio del pan es catorce menos cuatro veces el precio del jugo. Todavía no hay números, pero ya sabemos cómo se relacionan.');
- glow(cell('S2',2),'');
- await choose('Ahora sustituimos en la primera ecuación, 3{x} + 2{y} = 12. ¿Qué escribimos en lugar de {x}?',
-  ['3(14 − 4{y}) + 2{y} = 12','3 · 14 − 4{y} + 2{y} = 12','14 − 4{y} + 2{y} = 12'],0,
-  {1:'Cuidado: el 3 multiplica a todo el paquete, 14 − 4y, no solo al 14. Hace falta el paréntesis.',2:'Te faltó el 3: la {x} estaba multiplicada por 3.'});
- glow(cell('S1',2),C.blue);
- const src=L2.querySelector('.m');
- await say('Eso es. Donde estaba la {x} ponemos la receta completa, entre paréntesis, como quien cambia un billete por su equivalente.',async()=>{
-  await fly(src,cell('S1',2),C.yel,'(14 − 4y)');glow(cell('S1',2),'')});
- const L3=await put('3(14 − 4<i>y</i>) + 2<i>y</i> = 12',{cls:'cb',tag:'①',note:'sustituimos'});
- await sub('Mira lo que pasó: la {x} desapareció. Esta ecuación solo tiene {y}, y eso sí sabemos resolverlo.');
- await say('Primero repartimos el 3 por todo el paréntesis. Después juntamos las {y}.',async()=>{
-  await put('42 − 12<i>y</i> + 2<i>y</i> = 12',{note:'repartimos el 3'});await wait(600);await put('42 − 10<i>y</i> = 12',{note:'juntamos las y'})});
- await say('Pasamos el 42 restando al otro lado, y dividimos entre menos diez. El jugo cuesta tres dólares.',async()=>{
-  await put('−10<i>y</i> = −30',{note:'restamos 42'});await wait(600);const r=await put('<i>y</i> = 3',{note:'dividimos entre −10'});glow(r.querySelector('.m'),C.grn)});
- await clearWork();
- await say('Falta el pan. Volvemos a la receta, que fue lo primero que escribimos.',async()=>{
-  await put('<i>x</i> = 14 − 4<i>y</i>',{cls:'cy',note:'la receta'});await wait(500);await put('<i>x</i> = 14 − 4 · 3',{note:'ya sabemos que y vale 3'})});
- {const r=await put('<i>x</i> = 2',{note:'14 − 12'});glow(r.querySelector('.m'),C.grn)}
- await sub('Catorce menos doce: el pan cuesta dos dólares.');
- await clearWork();
- await say('Y siempre, siempre, comprueba en las dos ecuaciones originales. Tres por dos más dos por tres da doce. Y dos más cuatro por tres da catorce. Cuadra.',async()=>{
-  const a=await put('3 · 2 + 2 · 3 = 12 ✓',{cls:'cb',tag:'①'});glow(a.querySelector('.m'),C.grn);await wait(500);const b=await put('2 + 4 · 3 = 14 ✓',{cls:'cy',tag:'②'});glow(b.querySelector('.m'),C.grn)});
- await clearWork();
- await say('Hay un error muy común. Sustituir en la misma ecuación de donde despejaste. Mira lo que sale.',async()=>{
-  await put('<i>x</i> = 14 − 4<i>y</i>',{cls:'cy'});await wait(400);await put('(14 − 4<i>y</i>) + 4<i>y</i> = 14',{cls:'cy',tag:'②',note:'otra vez la segunda'});await wait(400);const r=await put('14 = 14',{note:'cierto, pero inútil'});glow(r.querySelector('.m'),C.red)});
- await sub('Catorce igual a catorce. No es falso, es inútil: esa ecuación ya la gastaste al despejar. La sustitución siempre va en la otra.');
- await sub('En resumen, sustituir es cambiar algo por su equivalente para que quede una sola incógnita. Es combinar verdades, tal como prometí.');
-}},
-
-{name:'Igualación',async run(){
- gl(false);topb('');
- setStage(`<div class="emo" id="emo" style="font-size:clamp(22px,4vw,38px)">👧 mide lo mismo que 🧒 &nbsp;y&nbsp; 👦 mide lo mismo que 🧒<br>entonces 👧 = 👦</div>`);$('emo').style.opacity=0;
- await say('La igualación es la sustitución disfrazada, y se entiende con la propia panadería. Pero antes, una idea de sentido común.',async()=>{await write($('emo'))});
- await sub('Si Marta y Pedro miden lo mismo que Juan, entonces Marta y Pedro miden lo mismo entre ellos. Dos cosas iguales a una tercera son iguales entre sí.');
- board();$('S').style.opacity=0;await write($('S'));
- await sub('Ahora la panadería. Si despejo el precio del pan en cada boleta, obtengo dos recetas: una según Ana, otra según Luis. Pero el pan es el mismo, en la misma panadería. Así que las dos recetas tienen que dar lo mismo.');
- glow(cell('S1',2),C.blue);
- await say('Despejemos la {x} en la primera. Pasamos 2{y} restando, y dividimos entre tres.',async()=>{
-  await put('3<i>x</i> + 2<i>y</i> = 12',{cls:'cb',tag:'①'});await wait(400);await put('3<i>x</i> = 12 − 2<i>y</i>',{note:'pasamos 2y restando'});await wait(400);
-  const r=await put('<i>x</i> = '+fr('12 − 2<i>y</i>','3'),{note:'dividimos entre 3'});r.style.color=C.blue});
- glow(cell('S1',2),'');glow(cell('S2',2),C.yel);
- await say('Y en la segunda, la {x} ya casi está sola. Solo restamos 4{y}.',async()=>{
-  const r=await put('<i>x</i> = 14 − 4<i>y</i>',{tag:'②',note:'restamos 4y'});r.style.color=C.yel});
- glow(cell('S2',2),'');
- await clearWork();
- await say('Dos recetas para el mismo pan. Como valen lo mismo, las igualo.',async()=>{
-  const r=await put('<span class="cb">'+fr('12 − 2<i>y</i>','3')+'</span> = <span class="cy">14 − 4<i>y</i></span>',{note:'igualamos las recetas'})});
- await sub('Y mira: la {x} se fue. Una sola incógnita otra vez, igual que en la sustitución.');
- await choose('Para quitar el denominador multiplico los dos lados por 3. ¿Cómo queda el lado derecho, 14 − 4{y}?',['42 − 12{y}','14 − 12{y}','42 − 4{y}'],0,
-  {1:'Multiplicar por 3 afecta a todo el lado: el 14 también se triplica.',2:'Los dos términos se multiplican, también el 4y.'});
- await say('Exacto, todo el lado derecho se triplica. Y el 3 de abajo se va con el 3 que multiplica.',async()=>{
-  await put('12 − 2<i>y</i> = 42 − 12<i>y</i>',{note:'multiplicamos por 3 los dos lados'})});
- await say('Junto las {y} de un lado y los números del otro. Doce {y} menos dos {y} son diez {y}, y cuarenta y dos menos doce son treinta.',async()=>{
-  await put('−2<i>y</i> + 12<i>y</i> = 42 − 12',{note:'movemos términos'});await wait(500);await put('10<i>y</i> = 30',{note:''});await wait(500);const r=await put('<i>y</i> = 3',{note:'dividimos entre 10'});glow(r.querySelector('.m'),C.grn)});
- await clearWork();
- await say('Veamos qué habría pasado si olvido triplicar el lado derecho entero. Queda doce menos dos {y} igual a catorce menos cuatro {y}. Sale {y} igual a uno, y entonces {x} sería diez.',async()=>{
-  await put('12 − 2<i>y</i> = 14 − 4<i>y</i>',{note:'olvidamos multiplicar el lado derecho'});await wait(500);const a=await put('<i>y</i> = 1,  <i>x</i> = 10',{});glow(a.querySelector('.m'),C.red);await wait(500);
-  const b=await put('3 · 10 + 2 · 1 = 32 ≠ 12 ✗',{cls:'cb',tag:'①',note:'la comprobación lo delata'});glow(b.querySelector('.m'),C.red)});
- await sub('La boleta de Ana no da treinta y dos, da doce. La comprobación te avisa. Por eso es gratis y siempre vale la pena.');
- await clearWork();
- await say('Ahora el pan. Uso la receta más corta: catorce menos cuatro por tres, o sea dos. Y la otra receta, doce menos seis entre tres, también da dos. Las dos recetas coinciden, que era justo la idea.',async()=>{
-  const a=await put('<i>x</i> = 14 − 4 · 3 = 2',{cls:'cy'});await wait(400);const b=await put('<i>x</i> = '+fr('12 − 2 · 3','3')+' = 2',{cls:'cb'});glow(a.querySelector('.m'),C.grn);glow(b.querySelector('.m'),C.grn)});
- await sub('Así que la igualación es una sustitución donde lo que cambias ya viene despejado en las dos ecuaciones. Dos verdades, combinadas.');
-}},
-
-{name:'Reducción',async run(){
- gl(false);topb('');
- const bal=(l,r)=>`<div class="bal" id="bal"><div class="beam"><div class="pan l cb" id="pl">${l}</div><div class="pan r cy" id="pr">${r}</div></div><div class="stand"></div></div>`;
- const tilt=(deg,ms=900)=>{const el=$('bal'),from=parseFloat(el.style.getPropertyValue('--a'))||0;return tween(ms,k=>el.style.setProperty('--a',(from+(deg-from)*k)+'deg'))};
- setStage(bal('3<i>x</i> + 2<i>y</i>','12')+`<div class="cap2">una ecuación es una balanza en equilibrio</div>`);$('bal').style.opacity=0;
- await say('La reducción, que también llaman eliminación, se apoya en una balanza. Cada ecuación es una balanza en equilibrio: lo que hay a la izquierda pesa lo mismo que lo de la derecha.',async()=>{await write($('bal'))});
- setStage(`<div class="row"><div class="big cb">A = B</div><div class="op">y</div><div class="big cy">C = D</div></div><div class="big cg" id="r" style="opacity:0">A + C = B + D</div>`);
- await say('Y aquí está la clave. Si tienes dos balanzas equilibradas y las juntas, el conjunto sigue equilibrado. Sumar o restar ecuaciones enteras conserva la verdad.',async()=>{await wait(1500);await write($('r'))});
- board();$('S').style.opacity=0;await write($('S'));
- glow(cell('S1',2),C.blue);glow(cell('S2',2),C.yel);
- await sub('Lo que busco es sumar o restar de modo que una incógnita desaparezca. En la primera, la {x} viene multiplicada por 3. En la segunda, por 1. Si consigo que sean iguales, al restar se esfuman.');
- await choose('Entonces, ¿por cuánto multiplico la segunda ecuación para que su {x} se convierta en 3{x}?',['Por 3','Por 2','Por 4'],0,
-  {1:'Con 2 quedaría 2x, todavía distinto de 3x.',2:'Con 4 quedaría 4x. Necesito exactamente 3x.'});
- glow(cell('S1',2),'');glow(cell('S2',2),'');
- setStage(bal('<i>x</i> + 4<i>y</i>','14')+`<div class="cap2" id="bc">la segunda ecuación, en equilibrio</div>`);
- await sub('Pero ojo, que aquí vive el error clásico. Mira la balanza de la segunda ecuación.');
- await say('Si multiplico por tres solo el lado izquierdo, la balanza se vence. Esa ecuación dejó de ser verdad.',async()=>{
-  $('pl').innerHTML='3<i>x</i> + 12<i>y</i>';glow($('pl'),C.red);$('bc').textContent='solo el lado izquierdo por 3: mentira';await tilt(-9)});
- await say('Hay que multiplicar los dos lados. Catorce por tres es cuarenta y dos, y vuelve el equilibrio.',async()=>{
-  $('pr').innerHTML='42';await wait(400);glow($('pl'),'');$('bc').textContent='los dos lados por 3: sigue siendo verdad';await tilt(0)});
- board();$('S').style.opacity=1;
- await say('Ahora sí. Multiplico toda la segunda ecuación por 3, y la escribo encima de la primera, bien alineada.',async()=>{
-  await put(g5(3,12,42,'cy','r1'),{note:'② × 3'});await wait(300);await put(g5(3,2,12,'cb','r2','−'),{note:'① se resta entera'})});
- const x1=cell('r1',2),x2=cell('r2',2);glow(x1,C.red);glow(x2,C.red);
- await say('Fíjate en las dos 3{x}: son iguales. Al restar se cancelan, y por eso decimos que reducimos el sistema.',async()=>{await wait(900);[x1,x2,x1.nextElementSibling,x2.nextElementSibling].forEach(e=>e.style.opacity=0)});
- await say('Doce {y} menos dos {y} da diez {y}, y cuarenta y dos menos doce da treinta. Ojo con los signos: restar es cambiar de signo a toda la ecuación de abajo, también al doce.',async()=>{
-  const d=await put(g5(null,10,30,'cg','r3'),{cls:'sep',note:'12y − 2y = 10y,  42 − 12 = 30'})});
- {const r=await put('<i>y</i> = 30 ÷ 10 = 3',{note:'dividimos entre 10'});glow(r.querySelector('.m'),C.grn)}
- await sub('El jugo cuesta tres dólares, igual que con los otros métodos.');
- await clearWork();
- await say('Para el pan vuelvo a cualquier ecuación original. En la segunda es más corto: {x} más cuatro por tres es catorce, así que {x} vale dos.',async()=>{
-  await put('<i>x</i> + 4 · 3 = 14',{cls:'cy',tag:'②'});await wait(400);await put('<i>x</i> + 12 = 14',{});await wait(400);const r=await put('<i>x</i> = 2',{note:'restamos 12'});glow(r.querySelector('.m'),C.grn)});
- await clearWork();
- await say('También pude eliminar la {y} en lugar de la {x}. Multiplico la primera por 2, y su {y} queda igual que la de la segunda. Resto, y la {y} se esfuma. Sale 5{x} igual a 10, y {x} vale dos, sin volver atrás.',async()=>{
-  await put(g5(6,4,24,'cb','s1'),{note:'① × 2'});await wait(300);await put(g5(1,4,14,'cy','s2','−'),{note:'② se resta entera'});await wait(300);
-  await put(g5(5,null,10,'cg','s3'),{cls:'sep',note:'6x − x = 5x,  24 − 14 = 10'});await wait(300);const r=await put('<i>x</i> = 10 ÷ 5 = 2',{note:''});glow(r.querySelector('.m'),C.grn)});
- await sub('Una regla práctica para decidir. Si los términos que quieres eliminar tienen el mismo signo, restas las ecuaciones. Si tienen signos opuestos, las sumas.');
- await sub('A mí la reducción es la que más me gusta, porque casi nunca produce fracciones feas. Y es el método que, con más ecuaciones, usan hasta las computadoras.');
-}},
-
-{name:'¿Cuál uso?',async run(){
- gl(false);topb('');
- const mc=(i,n,w,c)=>`<div class="mc ${c}" style="opacity:0;border-color:currentColor"><div class="ico">${i}</div><h4>${n}</h4><div class="when">${w}</div></div>`;
- setStage(`<div class="row">${mc('📈','Gráfico','para ver, entender y comprobar. Poco exacto.','cn')}${mc('🔁','Sustitución','cuando una incógnita ya tiene un 1 delante.','cy')}${mc('⚖️','Igualación','cuando ya vienen despejadas en la misma incógnita.','cb')}${mc('➕','Reducción','cuando puedes igualar coeficientes. La más rápida.','cg')}</div><div class="big cg" id="fin" style="opacity:0">(2, 3)</div>`);
- await say('Resolvimos el mismo sistema por cuatro caminos y siempre llegamos a dos y tres. No es casualidad: las cuatro son maneras de combinar las mismas dos verdades.',async()=>{
-  const cs=[...document.querySelectorAll('.mc')];for(const m of cs){write(m,500);await wait(1200)}await wait(600);await write($('fin'),900)});
- const cs=[...document.querySelectorAll('.mc')];
- for(const [k,t] of [[0,'El gráfico sirve para ver qué está pasando, y para detectar si habrá una solución, ninguna o infinitas. Pero no te da decimales confiables.'],[1,'La sustitución es cómoda cuando alguna incógnita ya viene sola o con un uno delante, como la {x} de la segunda ecuación.'],[2,'La igualación brilla cuando las dos ecuaciones ya vienen despejadas en la misma incógnita. Si no, despejar da trabajo extra.'],[3,'La reducción gana cuando los números se pueden igualar fácilmente. Es la que más aguanta cuando el sistema crece.']]){
-  cs.forEach((m,i)=>m.style.boxShadow=i===k?'0 0 18px currentColor':'none');await sub(t)}
- cs.forEach(m=>m.style.boxShadow='none');
- await sub('Si dudas, elige el que te dé menos fracciones. Y si algún día un cálculo te da cero igual a seis, o cero igual a cero, ya sabes lo que significa. Hay un método más, con matrices, pero eso es otra historia.');
- await sub('Ahora te toca jugar. En el laboratorio puedes cambiar los números y ver cómo reaccionan las rectas.');
-}},
-
-{name:'Laboratorio',async run(){
- gl(false);topb('');setStage('');
- $('lab').classList.add('on');labInit();
- $('subp').style.opacity=0;
- await new Promise(()=>{})
-},leave(){$('lab').classList.remove('on')}},
-
-{name:'Ejercicios',async run(){setStage('');$('ex').classList.add('on');makeEx();$('subp').style.opacity=0;await new Promise(()=>{})},leave(){$('ex').classList.remove('on')}}
-];
-
-/* ===== control ===== */
-const bar=$('bar'),btns=[];let cur=-1;
-scenes.forEach((s,i)=>{const b=document.createElement('button');b.textContent=s.name;b.onclick=()=>play(i);bar.appendChild(b);btns.push(b)});
-$('pp').onclick=()=>{paused=!paused;if(SS)paused?SS.pause():SS.resume();document.getAnimations().forEach(a=>paused?a.pause():a.play());$('pp').textContent=paused?'▶':'❚❚'};
-const SPDS=[1,1.25,1.5,.8];
-$('spd').onclick=()=>{const q=SPDS[(SPDS.indexOf(SPEED)+1)%SPDS.length]||1;SPEED=q;$('spd').textContent=q+'×'};
-async function play(i){tok++;if(SS)SS.cancel();const t=tok;if(cur>=0&&scenes[cur].leave)scenes[cur].leave();cur=i;paused=false;$('pp').textContent='❚❚';
- document.querySelectorAll('.fly').forEach(f=>f.remove());gl(false);topb('');clear3d();setStage('');$('ask').classList.remove('on');$('subp').style.opacity=1;$('subp').textContent='';
- btns.forEach((b,k)=>b.classList.toggle('on',k===i));
- try{await scenes[i].run();if(t===tok&&i<scenes.length-1){await wait(600);play(i+1)}}catch(e){if(e!==X)console.error(e)}}
-addEventListener('keydown',e=>{if(/INPUT|BUTTON|SELECT|TEXTAREA/.test(e.target.tagName)||cur<0)return;
- if(e.key==='ArrowRight'&&cur<scenes.length-1)play(cur+1);else if(e.key==='ArrowLeft'&&cur>0)play(cur-1);else if(e.key===' '){e.preventDefault();$('pp').click()}});
+ .replace(/÷|\//g,' entre ').replace(/ = /g,' igual a ').replace(/=/g,' igual a ').replace(/\$(\d+)/g,'$1 dólares');
+let sayTimer=0;
+function say(t){clearTimeout(sayTimer);if(!SS)return;SS.cancel();if(!SND||!voice)return;
+ sayTimer=setTimeout(()=>{const u=new SpeechSynthesisUtterance(spoken(t));u.voice=voice;u.lang=voice.lang;u.rate=.98;u.pitch=.95;SS.speak(u)},80)}
 
 /*EX-START*/
-/* ===== generador de ejercicios y pasos resueltos ===== */
+/* ===== generador de retos y pasos resueltos ===== */
 const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
 const nz=()=>{let v=0;while(!v)v=rnd(-5,5);return v};
-const numS=c=>c<0?'−'+(-c):''+c;
 const parS=n=>n<0?`(−${-n})`:`${n}`;
 const cof=k=>k===1?'':k===-1?'−':numS(k);
 function lin(p,q,w){let s='';if(p!==0)s+=numS(p);if(q!==0){const a=Math.abs(q),t=(a===1?'':a)+`{${w}}`;s+=s===''?(q<0?'−':'')+t:(q<0?' − ':' + ')+t}return s||'0'}
@@ -580,76 +224,312 @@ function stIg(s){const {a1,b1,c1,a2,b2,c2}=s,L=[];
  return {L,x,y}}
 /*EX-END*/
 
-/* ===== plano 2D (laboratorio y ejercicios) ===== */
-function drawPlot(cv,eqs,pt,probe,R=10){
- const dpr=Math.min(devicePixelRatio||1,2),W=cv.clientWidth||300,H=cv.clientHeight||W;
- if(cv.width!==Math.round(W*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}
- const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,H);
- const S=W/(2*R),X=x=>W/2+x*S,Y=y=>H/2-y*S;
- for(let i=-R;i<=R;i++){g.strokeStyle=i%5===0?'#262626':'#131313';g.lineWidth=1;g.beginPath();g.moveTo(X(i),0);g.lineTo(X(i),H);g.moveTo(0,Y(i));g.lineTo(W,Y(i));g.stroke()}
- g.strokeStyle='#777';g.lineWidth=1.5;g.beginPath();g.moveTo(0,Y(0));g.lineTo(W,Y(0));g.moveTo(X(0),0);g.lineTo(X(0),H);g.stroke();
- g.fillStyle='#8a8a8a';g.font='11px "Source Sans 3",sans-serif';g.textAlign='center';
- for(let i=-R+2;i<R;i+=2){if(i===0)continue;g.fillText(i,X(i),Y(0)+13);g.textAlign='right';g.fillText(i,X(0)-4,Y(i)+4);g.textAlign='center'}
- g.fillStyle='#ece6d6';g.font='italic 15px "Crimson Pro",serif';g.fillText('x',W-10,Y(0)-6);g.fillText('y',X(0)+10,12);
- eqs.forEach(([a,b,c,col])=>{g.strokeStyle=col;g.lineWidth=3;g.beginPath();
-  if(b!==0){g.moveTo(X(-R),Y((c+a*R)/b));g.lineTo(X(R),Y((c-a*R)/b))}else if(a!==0){g.moveTo(X(c/a),0);g.lineTo(X(c/a),H)}else return;g.stroke()});
- const dotp=(p,col,txt)=>{g.fillStyle=col;g.beginPath();g.arc(X(p[0]),Y(p[1]),6,0,7);g.fill();if(txt){g.font='15px "Crimson Pro",serif';g.textAlign='left';g.fillText(txt,X(p[0])+10,Y(p[1])-9)}};
- if(pt)dotp(pt,'#83C167',`(${+pt[0].toFixed(2)}, ${+pt[1].toFixed(2)})`);
- if(probe)dotp(probe,'#ffffff',`(${probe[0]}, ${probe[1]})`)}
+/* ===== piezas de pantalla ===== */
+const tm=(k,v)=>{const a=Math.abs(k);return (k<0?'−':'')+(a===1?'':a)+`<i class="v">${v}</i>`};
+const g5=(a,b,c,cls='')=>`<div class="g5 ${cls}"><span></span><span>${a==null?'':tm(a,'x')}</span><span>${a==null||b==null?'':(b<0?'−':'+')}</span><span>${b==null?'':tm(a==null?b:Math.abs(b),'y')}</span><span>=</span><span>${numS(c)}</span></div>`;
+const SYS=(A,B,sm='')=>`<div class="sys ${sm}"><span class="brace">{</span><div class="eqs">${g5(A[0],A[1],A[2],'t-ana')}${g5(B[0],B[1],B[2],'t-luis')}</div></div>`;
+const EA=[3,2,12],EB=[1,4,14];
+const SYSC=SYS(EA,EB,'sm');
+const bolCard=(who,cls,items,tot)=>`<div class="bolx ${cls}"><div class="who">🧾 ${who}</div><div class="items">${items}</div><div class="tot">${tot}</div></div>`;
+const BOLS=`<div class="bolrow">${bolCard('Ana','ana','🥖🥖🥖🧃🧃','$12')}${bolCard('Luis','luis','🥖🧃🧃🧃🧃','$14')}</div>`;
+const parseNum=s=>{s=(s||'').trim().replace('−','-').replace(',','.');if(/^-?\d+(\.\d+)?\/-?\d+(\.\d+)?$/.test(s)){const [a,b]=s.split('/');return +a/+b}return s===''?NaN:+s};
 
-/* ===== laboratorio ===== */
-const LAB={a1:3,b1:2,c1:12,a2:1,b2:4,c2:14};let probe=null;
-const PRE=[[3,2,12,1,4,14],[3,2,12,3,2,6],[3,2,12,6,4,24]];
-const termL=(k,v)=>k===0?'0':(Math.abs(k)===1?'':Math.abs(k))+`{${v}}`;
-function eqHTML(a,b,c){return V((a<0?'−':'')+termL(a,'x')+' '+(b<0?'−':'+')+' '+termL(b,'y')+' = '+numS(c))}
-function labDraw(){
- const L=LAB;$('lt1').innerHTML=eqHTML(L.a1,L.b1,L.c1);$('lt2').innerHTML=eqHTML(L.a2,L.b2,L.c2);
- document.querySelectorAll('#lab input[type=range]').forEach(i=>i.value=L[i.dataset.k]);
- const det=L.a1*L.b2-L.a2*L.b1;let pt=null,msg='';
- const bad1=L.a1===0&&L.b1===0,bad2=L.a2===0&&L.b2===0;
- if(bad1||bad2){msg='Una ecuación quedó sin incógnitas: es de la forma 0 = número. '+((bad1&&L.c1!==0)||(bad2&&L.c2!==0)?'<span class="cr">Es falsa, así que no hay solución.</span>':'<span class="cy">Es cierta pero no aporta nada.</span>')}
- else if(det!==0){pt=[(L.c1*L.b2-L.c2*L.b1)/det,(L.a1*L.c2-L.a2*L.c1)/det];msg=`<span class="cg">Se cruzan en un punto:</span> x = ${+pt[0].toFixed(2)}, y = ${+pt[1].toFixed(2)}. Una sola solución.`}
- else if(L.a1*L.c2===L.a2*L.c1&&L.b1*L.c2===L.b2*L.c1)msg='<span class="cy">Es la misma recta.</span> Infinitas soluciones: al restar queda 0 = 0.';
- else msg='<span class="cr">Rectas paralelas.</span> No hay solución: al restar queda 0 = un número distinto de cero.';
- $('lres').innerHTML=msg;
- drawPlot($('cv'),[[L.a1,L.b1,L.c1,C.blue],[L.a2,L.b2,L.c2,C.yel]],pt,probe);
- if(probe){const [px,py]=probe,v1=L.a1*px+L.b1*py,v2=L.a2*px+L.b2*py;
-  const row=(a,b,c,v,col)=>`<div class="${col}">${a}·${parS(px)} + ${b}·${parS(py)} = ${numS(v)} ${v===c?'<span class="cg">✓ cumple</span>':`<span class="cr">✗ debía dar ${numS(c)}</span>`}</div>`;
-  $('probe').innerHTML=row(L.a1,L.b1,L.c1,v1,'cb')+row(L.a2,L.b2,L.c2,v2,'cy')}else $('probe').innerHTML='<span class="cap">toca el plano para probar una pareja</span>'}
-function labInit(){
- if(!labInit.done){labInit.done=true;
-  document.querySelectorAll('#lab input[type=range]').forEach(i=>i.oninput=()=>{LAB[i.dataset.k]=+i.value;labDraw()});
-  document.querySelectorAll('.pre button').forEach(b=>b.onclick=()=>{const p=+b.dataset.p;
-   if(p<3){[LAB.a1,LAB.b1,LAB.c1,LAB.a2,LAB.b2,LAB.c2]=PRE[p]}
-   else{const x0=rnd(-4,5),y0=rnd(-4,5),c=()=>{let v=0;while(!v)v=rnd(-6,6);return v};const a1=c(),b1=c(),a2=c(),b2=c();Object.assign(LAB,{a1,b1,c1:a1*x0+b1*y0,a2,b2,c2:a2*x0+b2*y0})}
-   probe=null;labDraw()});
-  $('cv').onpointerdown=e=>{const r=$('cv').getBoundingClientRect(),S=r.width/20;probe=[Math.round((e.clientX-r.left-r.width/2)/S),Math.round(-(e.clientY-r.top-r.height/2)/S)];labDraw()};
-  $('tonext').onclick=()=>play(scenes.length-1);addEventListener('resize',()=>{if($('lab').classList.contains('on'))labDraw()})}
- requestAnimationFrame(labDraw)}
+/* huecos [[respuesta]] dentro de una ecuación */
+function blanksHTML(eq){return V(eq).replace(/\[\[([^\]]+)\]\]/g,'<input class="blank" inputmode="decimal" autocomplete="off" data-a="$1" aria-label="espacio en blanco">')}
+function wireBlanks(scope,api,why,badMsg){
+ const ins=[...scope.querySelectorAll('input.blank')];
+ const upd=()=>api.enable(ins.every(i=>i.value.trim()!==''));
+ ins.forEach(i=>i.addEventListener('input',()=>{i.classList.remove('ok','bad');upd()}));
+ ins.forEach((i,k)=>i.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();k<ins.length-1?ins[k+1].focus():$('go').click()}}));
+ api.setCheck(()=>{let good=0;ins.forEach(i=>{const ok=Math.abs(parseNum(i.value)-parseNum(i.dataset.a))<1e-9;i.classList.toggle('ok',ok);i.classList.toggle('bad',!ok);good+=ok});
+  return good===ins.length?{ok:true,msg:why}:{ok:false,msg:badMsg||(good?'Una va bien. Revisa la roja.':'Todavía no. Mira la pista si la necesitas.')}});
+ if(ins[0])setTimeout(()=>ins[0].focus({preventScroll:true}),50);upd()}
 
-/* ===== ejercicios ===== */
-const MTH={sus:['🔁 Sustitución',stSus],ig:['⚖️ Igualación',stIg],red:['➕ Reducción',stRed]};
-function makeEx(){const Lx=$('exl');Lx.innerHTML='';
- [0,1,1,2,3].forEach((lv,n)=>{const s=genSys(lv),d=document.createElement('div');d.className='card';
-  d.innerHTML=`<h3>${n+1}. Resuelve el sistema</h3><div class="row">${SYS([s.a1,s.b1,s.c1],[s.a2,s.b2,s.c2],'ex'+n,'sm')}</div>
-  <div class="row"><span class="name">x =</span><input inputmode="numeric" aria-label="valor de x" data-v="${s.x0}"><span class="name">y =</span><input inputmode="numeric" aria-label="valor de y" data-v="${s.y0}"></div>
-  <div class="fb"></div><div class="acts"><button class="chk">Revisar</button></div>
-  <div class="cap">¿Quieres ver el camino? Elige un método:</div>
-  <div class="acts">${Object.entries(MTH).map(([k,[t]])=>`<button data-m="${k}">${t}</button>`).join('')}<button data-m="gr">📈 Gráfica</button></div>
-  <div class="steps"></div><canvas class="cvx" hidden></canvas>`;
-  const ins=[...d.querySelectorAll('input')],fb=d.querySelector('.fb'),st=d.querySelector('.steps'),cv=d.querySelector('.cvx');let run=0;
-  d.querySelector('.chk').onclick=()=>{let ok=0;ins.forEach(i=>{const g=i.value.trim()!==''&&+i.value.replace('−','-').replace(',','.')===+i.dataset.v;i.classList.toggle('ok',g);i.classList.toggle('bad',!g);ok+=g});
-   fb.innerHTML=ok===2?'<span class="cg">Perfecto. Comprueba también en la otra ecuación y estás listo.</span>':ok===1?'Una va bien. Revisa la roja.':'Todavía no. Prueba con cualquier método y comprueba en las dos ecuaciones.'};
-  d.querySelectorAll('[data-m]').forEach(b=>b.onclick=async()=>{const my=++run;st.innerHTML='';cv.hidden=true;const m=b.dataset.m;
-   if(m==='gr'){cv.hidden=false;requestAnimationFrame(()=>drawPlot(cv,[[s.a1,s.b1,s.c1,C.blue],[s.a2,s.b2,s.c2,C.yel]],[s.x0,s.y0]));
-    st.innerHTML=V(`<div class="st">Cada ecuación es una recta. Se cruzan en (${numS(s.x0)}, ${numS(s.y0)}): {x} = ${numS(s.x0)}, {y} = ${numS(s.y0)}.</div>`);return}
-   const r=MTH[m][1](s);
-   for(const line of r.L){if(my!==run)return;const e=document.createElement('div');e.className='st';e.innerHTML=V(line);st.appendChild(e);await new Promise(q=>setTimeout(q,reduce?60:1200/SPEED))}
-   if(my===run){const e=document.createElement('div');e.className='st cg';e.innerHTML=V(`Solución: {x} = ${numS(r.x)}, {y} = ${numS(r.y)}`);st.appendChild(e)}});
-  Lx.appendChild(d)})}
-$('regen').onclick=makeEx;
-$('mute').onclick=()=>{muted=!muted;if(muted&&SS)SS.cancel();$('mute').textContent=muted?'🔇':'🔊'};
-$('go').onclick=()=>{if(SS){const u=new SpeechSynthesisUtterance(' ');SS.speak(u)}$('start').remove();document.fonts.ready.then(()=>play(+(new URLSearchParams(location.search).get('scene'))||0))};
+/* ===== plano de precios (pan en horizontal, jugo en vertical) ===== */
+function endsIn(a,b,c,x0,x1,y0,y1){const P=[],ok=(x,y)=>!P.some(p=>Math.abs(p[0]-x)<1e-9&&Math.abs(p[1]-y)<1e-9);
+ if(b!==0)for(const x of[x0,x1]){const y=(c-a*x)/b;if(y>=y0-1e-9&&y<=y1+1e-9&&ok(x,y))P.push([x,y])}
+ if(a!==0)for(const y of[y0,y1]){const x=(c-b*y)/a;if(x>=x0-1e-9&&x<=x1+1e-9&&ok(x,y))P.push([x,y])}
+ return P.length>1?P.slice(0,2):null}
+function plane(el,api,cfg){
+ const wrap=document.createElement('div');
+ wrap.innerHTML=`<canvas class="plane ${cfg.noPoint||cfg.small?'s':''}" ${cfg.noPoint?'':'tabindex="0"'} aria-label="Plano de precios. Pan en el eje horizontal, jugo en el vertical.${cfg.noPoint?'':' Usa las flechas para mover el punto.'}"></canvas><div class="pstat" aria-live="polite"></div>`;
+ el.appendChild(wrap);
+ const cv=wrap.querySelector('canvas'),ps=wrap.querySelector('.pstat');
+ const X0=0,X1=10,Y0=0,Y1=9,mL=36,mB=30,mT=12,mR=16;
+ const ctx={lines:cfg.lines||[],pt:cfg.noPoint?null:(cfg.start||[1,1]),trace:[],cv,mark:cfg.mark||[]};
+ const sat=(eq,p)=>Math.abs(eq[0]*p[0]+eq[1]*p[1]-eq[2])<1e-9;ctx.sat=sat;
+ function draw(){
+  const dpr=Math.min(devicePixelRatio||1,2),W=cv.clientWidth,H=cv.clientHeight;if(!W)return;
+  if(cv.width!==Math.round(W*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}
+  const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,H);
+  const c=css(),pw=W-mL-mR,ph=H-mB-mT,X=x=>mL+(x-X0)/(X1-X0)*pw,Y=y=>H-mB-(y-Y0)/(Y1-Y0)*ph;
+  g.lineWidth=1;g.strokeStyle=c('line');g.fillStyle=c('mute');g.font='12px Figtree,sans-serif';g.textAlign='center';
+  for(let x=X0;x<=X1;x++){g.beginPath();g.moveTo(X(x),Y(Y0));g.lineTo(X(x),Y(Y1));g.stroke();g.fillText(x,X(x),H-mB+16)}
+  g.textAlign='right';for(let y=Y0;y<=Y1;y++){g.beginPath();g.moveTo(X(X0),Y(y));g.lineTo(X(X1),Y(y));g.stroke();g.fillText(y,mL-8,Y(y)+4)}
+  g.strokeStyle=c('mute');g.lineWidth=1.6;g.beginPath();g.moveTo(X(X0),Y(Y1));g.lineTo(X(X0),Y(Y0));g.lineTo(X(X1),Y(Y0));g.stroke();
+  g.fillStyle=c('ink');g.font='600 13px Figtree,sans-serif';g.textAlign='right';g.fillText('pan  $',W-mR,H-mB-6);g.textAlign='left';g.fillText('jugo  $',mL+6,mT+10);
+  ctx.lines.forEach(l=>{if(l.show===false)return;const e=endsIn(l.eq[0],l.eq[1],l.eq[2],X0,X1,Y0,Y1);if(!e)return;g.strokeStyle=c(l.c);g.lineWidth=3.5;g.lineCap='round';g.beginPath();g.moveTo(X(e[0][0]),Y(e[0][1]));g.lineTo(X(e[1][0]),Y(e[1][1]));g.stroke()});
+  const dot=(p,r,col)=>{g.fillStyle=col;g.beginPath();g.arc(X(p[0]),Y(p[1]),r,0,7);g.fill()};
+  ctx.mark.forEach(p=>{dot(p,6,c('ink'));g.fillStyle=c('ink');g.font='600 13px Figtree,sans-serif';g.textAlign='left';g.fillText(`(${fmt(p[0])}, ${fmt(p[1])})`,X(p[0])+9,Y(p[1])-9)});
+  ctx.trace.forEach(p=>dot(p,6,c('ana')));
+  if(ctx.pt){const vis=ctx.lines.filter(l=>l.chip),all=vis.length&&vis.every(l=>sat(l.eq,ctx.pt)),some=vis.filter(l=>sat(l.eq,ctx.pt));
+   const col=all?c('ok'):some.length?c(some[0].c):c('focus');dot(ctx.pt,13,col);g.fillStyle=c('card');g.beginPath();g.arc(X(ctx.pt[0]),Y(ctx.pt[1]),5,0,7);g.fill()}
+  if(ctx.pt){ps.innerHTML=`<span>pan $${fmt(ctx.pt[0])} · jugo $${fmt(ctx.pt[1])}</span>`+ctx.lines.filter(l=>l.chip).map(l=>{const ok=sat(l.eq,ctx.pt),v=l.eq[0]*ctx.pt[0]+l.eq[1]*ctx.pt[1];return `<span class="chip ${ok?'ok':'no'}">${l.name} ${ok?'✓ cuadra':'pagaría $'+fmt(v)}</span>`}).join('')}
+  ctx.cv.dataset.pt=ctx.pt?ctx.pt.join(','):''}
+ ctx.draw=draw;
+ const move=p=>{p=[Math.min(X1,Math.max(X0,Math.round(p[0]*2)/2)),Math.min(Y1,Math.max(Y0,Math.round(p[1]*2)/2))];if(ctx.pt&&p[0]===ctx.pt[0]&&p[1]===ctx.pt[1])return;ctx.pt=p;draw();cfg.on&&cfg.on(ctx)};
+ ctx.move=move;
+ if(!cfg.noPoint){
+  const at=e=>{const r=cv.getBoundingClientRect(),W=r.width,H=r.height;return [X0+((e.clientX-r.left)-mL)/(W-mL-mR)*(X1-X0),Y0+((H-mB-(e.clientY-r.top)))/(H-mB-mT)*(Y1-Y0)]};
+  let drag=false;cv.addEventListener('pointerdown',e=>{drag=true;cv.setPointerCapture(e.pointerId);cv.style.cursor='grabbing';move(at(e))});
+  cv.addEventListener('pointermove',e=>{if(drag)move(at(e))});cv.addEventListener('pointerup',()=>{drag=false;cv.style.cursor='grab'});
+  cv.addEventListener('keydown',e=>{const d={ArrowRight:[.5,0],ArrowLeft:[-.5,0],ArrowUp:[0,.5],ArrowDown:[0,-.5]}[e.key];if(d){e.preventDefault();move([ctx.pt[0]+d[0],ctx.pt[1]+d[1]])}})}
+ const ro=new ResizeObserver(draw);ro.observe(cv);matchMedia('(prefers-color-scheme: dark)').addEventListener('change',draw);
+ requestAnimationFrame(draw);return ctx}
+
+/* ===== laboratorio de precios con deslizadores ===== */
+function priceLab(el,api,cfg){
+ const found=[];
+ el.insertAdjacentHTML('beforeend',`<div class="card" style="display:flex;flex-direction:column;gap:10px">
+  <label class="sl"><span>🥖 Pan</span><input id="rp" type="range" min="0" max="8" step="0.5" value="1" aria-label="Precio del pan"><output id="op"></output></label>
+  <label class="sl"><span>🧃 Jugo</span><input id="rj" type="range" min="0" max="8" step="0.5" value="1" aria-label="Precio del jugo"><output id="oj"></output></label></div>
+  <div class="bolrow"><div class="bolx ana" id="ba"></div>${cfg.luis?'<div class="bolx luis" id="bl"></div>':''}</div><div class="found" id="fd"></div>`);
+ const rp=$('rp'),rj=$('rj');
+ const card=(id,who,items,expr,tot,goal)=>{const ok=Math.abs(tot-goal)<1e-9;
+  $(id).innerHTML=`<div class="who">🧾 ${who}</div><div class="items">${items}</div><div class="mth">${expr} = $${fmt(tot)}</div><span class="badge ${ok?'good':'off'}">${ok?'✓ cuadra con $'+goal:(tot<goal?'faltan $'+fmt(goal-tot):'sobran $'+fmt(tot-goal))}</span>`;return ok};
+ function upd(){const p=+rp.value,j=+rj.value;$('op').textContent='$'+fmt(p);$('oj').textContent='$'+fmt(j);
+  const a=card('ba','Ana','🥖🥖🥖🧃🧃',`3 × ${fmt(p)} + 2 × ${fmt(j)}`,3*p+2*j,12);
+  let l=true;if(cfg.luis)l=card('bl','Luis','🥖🧃🧃🧃🧃',`1 × ${fmt(p)} + 4 × ${fmt(j)}`,p+4*j,14);
+  if(cfg.pairs){if(a){const k=p+','+j;if(!found.includes(k)){found.push(k);$('fd').insertAdjacentHTML('beforeend',`<span class="chip ok">pan $${fmt(p)} · jugo $${fmt(j)}</span>`);if(found.length>=cfg.pairs)api.done()}}}
+  else if(a&&l)api.done()}
+ rp.oninput=rj.oninput=upd;upd()}
+
+/* ===== rectas de Ana y Luis con la de Luis ajustable ===== */
+function linesLab(el,api,goal){
+ const L={a:1,b:4,c:14};
+ el.insertAdjacentHTML('beforeend',`<div class="card" style="display:flex;flex-direction:column;gap:8px"><div class="eq t-luis" id="lq" style="line-height:1.3"></div>
+  <label class="sl"><span>pan ×</span><input type="range" id="la" min="1" max="6" step="1" value="1" aria-label="Panes de Luis"><output id="lao"></output></label>
+  <label class="sl"><span>jugo ×</span><input type="range" id="lb" min="1" max="6" step="1" value="4" aria-label="Jugos de Luis"><output id="lbo"></output></label>
+  <label class="sl"><span>total $</span><input type="range" id="lc" min="1" max="24" step="1" value="14" aria-label="Total de Luis"><output id="lco"></output></label></div>`);
+ const ctx=plane(el,api,{noPoint:true,small:true,lines:[{eq:EA,c:'ana',name:'Ana'},{eq:[1,4,14],c:'luis',name:'Luis'}]});
+ const msg=document.createElement('div');msg.className='pstat';el.appendChild(msg);
+ function upd(){L.a=+$('la').value;L.b=+$('lb').value;L.c=+$('lc').value;
+  $('lao').textContent=L.a;$('lbo').textContent=L.b;$('lco').textContent='$'+L.c;
+  $('lq').innerHTML=blanksHTML(`${L.a===1?'':L.a}{x} + ${L.b===1?'':L.b}{y} = ${L.c}`);
+  ctx.lines[1].eq=[L.a,L.b,L.c];ctx.draw();
+  const det=3*L.b-2*L.a;
+  const same2=det===0&&(3*L.c===12*L.a)&&(2*L.c===12*L.b);
+  const kind=det!==0?'cruce':same2?'misma':'paralelas';
+  msg.innerHTML=kind==='cruce'?'<span class="chip ok">se cruzan en un punto: una solución</span>':kind==='paralelas'?'<span class="chip no">paralelas: ninguna solución</span>':'<span class="chip no">la misma recta: infinitas soluciones</span>';
+  if(kind===goal)api.done()}
+ ['la','lb','lc'].forEach(i=>$(i).oninput=upd);upd()}
+
+/* ===== balanza ===== */
+function balance(el,api){
+ let l=1,r=1;
+ el.innerHTML=`<div class="bal"><div class="beam" id="beam"><div class="pan l" id="pl"></div><div class="pan r" id="pr"></div></div><div class="stand"></div></div><div class="balmsg" id="bm"></div>
+  <div class="btnrow"><button class="xbtn ana" id="b1">× 3 al lado izquierdo</button><button class="xbtn luis" id="b2">× 3 al lado derecho</button><button class="xbtn" id="b0">Reiniciar</button></div>`;
+ function upd(){const a=(r-l)*7;$('beam').style.transform=`rotate(${a}deg)`;
+  $('pl').style.transform=`translateX(-50%) rotate(${-a}deg)`;$('pr').style.transform=`translateX(-50%) rotate(${-a}deg)`;
+  $('pl').innerHTML=V(`${l===1?'':l}{x} + ${4*l}{y}`);$('pr').innerHTML=''+14*r;
+  $('pl').style.color=l!==r?'var(--bad)':'var(--ink)';$('pr').style.color=l!==r?'var(--bad)':'var(--ink)';
+  $('b1').disabled=l!==1;$('b2').disabled=r!==1;
+  $('bm').innerHTML=l!==r?'<span class="t-bad">La balanza se vence: esta ecuación ya no es verdad.</span>':l===3?'<span class="t-ok">En equilibrio. Multiplicaste los dos lados.</span>':'En equilibrio: x + 4y pesa lo mismo que 14.';
+  if(l===3&&r===3)api.done()}
+ $('b1').onclick=()=>{l=3;upd()};$('b2').onclick=()=>{r=3;upd()};$('b0').onclick=()=>{l=1;r=1;upd()};upd()}
+
+/* ===== retos generados ===== */
+const MTH={sus:['Sustitución',stSus],ig:['Igualación',stIg],red:['Reducción',stRed]};
+function challenge(el,api,lv){
+ const s=genSys(lv);
+ el.innerHTML=`<div class="card">${SYS([s.a1,s.b1,s.c1],[s.a2,s.b2,s.c2])}</div><div class="eq">{x} = [[${s.x0}]] &nbsp; {y} = [[${s.y0}]]</div>
+  <div class="helpbar">Ayuda con: ${Object.entries(MTH).map(([k,[t]])=>`<button class="hintbtn" data-m="${k}">${t}</button>`).join('')}<button class="hintbtn" data-m="gr">Gráfica</button></div><div class="steps"></div><canvas class="mini" hidden></canvas>`;
+ const eq=el.querySelector('.eq');eq.innerHTML=blanksHTML(eq.innerHTML.replace(/<i class="v">(\w)<\/i>/g,'{$1}'));
+ wireBlanks(el,api,'Correcto. Antes de seguir, comprueba tu pareja en las dos ecuaciones: es gratis y atrapa los errores.','Todavía no. Prueba tu pareja en las dos ecuaciones: ¿cuál falla? O pide ayuda abajo.');
+ const st=el.querySelector('.steps'),cv=el.querySelector('canvas');let run=0;
+ el.querySelectorAll('[data-m]').forEach(b=>b.onclick=async()=>{const my=++run,m=b.dataset.m;st.innerHTML='';cv.hidden=true;
+  if(m==='gr'){cv.hidden=false;requestAnimationFrame(()=>drawMini(cv,s));st.innerHTML=V(`<div class="st">Cada ecuación es una recta. Se cruzan en (${numS(s.x0)}, ${numS(s.y0)}).</div>`);return}
+  const r=MTH[m][1](s);for(const line of r.L){if(my!==run)return;const d=document.createElement('div');d.className='st';d.innerHTML=V(line);st.appendChild(d);await sleep(reduce?50:900)}});
+ return s}
+function drawMini(cv,s,R=10){const c=css(),dpr=Math.min(devicePixelRatio||1,2),W=cv.clientWidth,H=cv.clientHeight;cv.width=W*dpr;cv.height=H*dpr;
+ const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);const S=W/(2*R),X=x=>W/2+x*S,Y=y=>H/2-y*S;
+ for(let i=-R;i<=R;i++){g.strokeStyle=i%5===0?c('mute'):c('line');g.lineWidth=1;g.beginPath();g.moveTo(X(i),0);g.lineTo(X(i),H);g.moveTo(0,Y(i));g.lineTo(W,Y(i));g.stroke()}
+ g.strokeStyle=c('ink');g.lineWidth=1.5;g.beginPath();g.moveTo(0,Y(0));g.lineTo(W,Y(0));g.moveTo(X(0),0);g.lineTo(X(0),H);g.stroke();
+ [[s.a1,s.b1,s.c1,'ana'],[s.a2,s.b2,s.c2,'luis']].forEach(([a,b,cc,col])=>{g.strokeStyle=c(col);g.lineWidth=3;g.beginPath();
+  if(b!==0){g.moveTo(X(-R),Y((cc+a*R)/b));g.lineTo(X(R),Y((cc-a*R)/b))}else{g.moveTo(X(cc/a),0);g.lineTo(X(cc/a),H)}g.stroke()});
+ g.fillStyle=c('ok');g.beginPath();g.arc(X(s.x0),Y(s.y0),6,0,7);g.fill()}
+
+/* ===== definición de la lección ===== */
+const read=(id,text,vis,o={})=>({k:'read',id,text,vis,...o});
+const choice=(id,text,opts,ans,why,hints={},o={})=>({k:'choice',id,text,opts,ans,why,hints,...o});
+const fill=(id,text,eq,why,o={})=>({k:'fill',id,text,eq,why,...o});
+const explore=(id,text,mount,o={})=>({k:'explore',id,text,mount,...o});
+const check=(id,text,mount,o={})=>({k:'check',id,text,mount,...o});
+
+const LV=[
+{title:'Nivel 1 · Dos pistas',steps:[
+ read('intro','En una panadería no hay precios en la pared. Solo tienes dos boletas viejas. Ana pagó $12 por 3 panes y 2 jugos. Luis pagó $14 por 1 pan y 4 jugos.',BOLS),
+ choice('cmp1','Luis compró menos cosas que Ana y pagó más. ¿Qué te dice eso?',['El jugo es más caro que el pan','El pan es más caro que el jugo','No se puede deducir nada'],0,
+  'Luis tiene 2 panes menos y 2 jugos más, y paga $2 más. Eso solo pasa si el jugo cuesta más que el pan.',
+  {1:'Si el pan fuera más caro, cambiar panes por jugos haría bajar la cuenta, no subirla.',2:'Sí se puede. Compara qué cambió de una boleta a la otra.'},{vis:BOLS}),
+ fill('diff','Compara con calma: Luis tiene 2 panes menos y 2 jugos más que Ana, y paga $2 más. ¿Cuánto más cuesta un jugo que un pan?','Un jugo cuesta $[[1]] más que un pan',
+  'Cambiar 2 panes por 2 jugos sube la cuenta $2, así que cada cambio sube $1. Acabas de restar dos boletas. Guarda esa idea: vuelve en el nivel 4.',{hint:'Piensa en un solo cambio: quitas un pan y pones un jugo. ¿Cuánto sube la cuenta?'}),
+ explore('price-both','Ahora a probar. Mueve los precios hasta que las dos boletas cuadren.',(el,api)=>priceLab(el,api,{luis:true}),
+  {ok:'Pan $2 y jugo $3. Las dos boletas cuadran a la vez.',hint:'Recuerda que el jugo cuesta $1 más que el pan.'}),
+ explore('price-pairs','Mira solo la boleta de Ana. Encuentra 3 parejas de precios distintas que cuadren con $12.',(el,api)=>priceLab(el,api,{luis:false,pairs:3}),
+  {ok:'Hay muchas parejas que cuadran. Una sola boleta deja demasiadas posibilidades. Hacen falta las dos pistas.',hint:'Si el pan no cuesta nada, ¿cuánto debe costar el jugo para llegar a $12?'}),
+ explore('translate','Dibujar panes cansa. Llamemos x al precio de un pan y y al de un jugo. Toca cada boleta para traducirla.',(el,api)=>{
+  el.innerHTML=`<div class="bolrow" id="tr">${[['Ana','ana','🥖🥖🥖🧃🧃','3{x} + 2{y} = 12'],['Luis','luis','🥖🧃🧃🧃🧃','{x} + 4{y} = 14']].map(([w,c,it,e],i)=>`<div class="bolx ${c}"><div class="who">🧾 ${w}</div><div class="items" data-i="${i}">${it}</div><button class="xbtn ${c}" data-e="${e}">Traducir</button></div>`).join('')}</div>`;
+  let n=0;el.querySelectorAll('button').forEach(b=>b.onclick=()=>{const it=b.parentNode.querySelector('.items');it.className='mth';it.innerHTML=V(b.dataset.e);b.remove();if(++n===2)api.done()})},
+  {ok:'Cada boleta es una ecuación. Las dos juntas forman un sistema, y x y y son las incógnitas.'}),
+ choice('eqLuis','¿Cuál es la ecuación de la boleta de Luis?',['x + 4y = 14','4x + y = 14','x + y = 14','x + 4y = 4'],0,
+  'Un pan cuesta x, cuatro jugos cuestan 4y, y el total es 14.',{1:'Esa describe 4 panes y 1 jugo.',2:'Luis compró 4 jugos, no 1.',3:'El 14 es lo que pagó. El 4 es la cantidad de jugos.'}),
+ choice('whatSol','¿Qué es la solución de un sistema?',['La pareja que cumple las dos ecuaciones','Cualquier pareja que cumpla una','La suma de x y de y'],0,
+  'Es la única pareja que hace verdaderas las dos. En la panadería: pan $2 y jugo $3.',{1:'Esa pareja puede fallar en la otra ecuación.',2:'La solución es una pareja de valores, no una suma.'}),
+ read('ideas','Hay cuatro métodos para encontrar esa pareja sin adivinar. Todos hacen lo mismo: combinar verdades hasta quedarte con una que tenga una sola incógnita.',
+  `<div class="pills"><span class="pill">Gráfico</span><span class="pill">Sustitución</span><span class="pill">Igualación</span><span class="pill">Reducción</span></div><div class="idea">combinar verdades</div>`)
+]},
+{title:'Nivel 2 · Verlo en un plano',steps:[
+ explore('plane-move','Cada punto del plano es una pareja de precios. Arrastra el punto hasta pan $5 y jugo $1. También puedes usar las flechas.',(el,api)=>plane(el,api,{start:[1,1],on:c=>{if(c.pt[0]===5&&c.pt[1]===1)api.done()}}),
+  {ok:'Pan $5, jugo $1: el punto (5, 1). Primero va el pan, luego el jugo.',hint:'Cuenta 5 hacia la derecha y 1 hacia arriba.'}),
+ explore('plane-ana','Arrastra el punto. Cada vez que la boleta de Ana cuadre, deja una marca. Consigue 4 marcas distintas.',(el,api)=>{
+  const ctx=plane(el,api,{start:[1,1],lines:[{eq:EA,c:'ana',name:'Ana',chip:true,show:false}],on:c=>{
+   if(c.sat(EA,c.pt)&&!c.trace.some(p=>p[0]===c.pt[0]&&p[1]===c.pt[1])){c.trace.push(c.pt.slice());c.draw();
+    if(c.trace.length>=4){c.lines[0].show=true;c.draw();api.done()}}}})},
+  {ok:'Mira: todas las marcas caen sobre una recta. Esa recta son todas las parejas que cumplen la boleta de Ana.',hint:'Si el pan cuesta 0, el jugo debe costar 6. Si el pan cuesta 2, el jugo cuesta 3. Prueba también el pan en 4.'}),
+ fill('ana-int','Dos puntos bastan para dibujar una recta. En 3x + 2y = 12: si el jugo cuesta $0, ¿cuánto cuesta el pan? Y si el pan cuesta $0, ¿cuánto el jugo?','Con jugo $0: pan = $[[4]]<br>Con pan $0: jugo = $[[6]]',
+  '3x = 12 da x = 4, y 2y = 12 da y = 6. Los puntos (4, 0) y (0, 6) bastan para trazar la recta.',{hint:'Con jugo $0 queda 3x = 12. Con pan $0 queda 2y = 12.',
+  mount:(el)=>plane(el,{},{noPoint:true,lines:[{eq:EA,c:'ana',name:'Ana'}]})}),
+ fill('luis-int','Lo mismo con Luis: x + 4y = 14. Si el pan cuesta $0, ¿cuánto cuesta un jugo? Y si el pan cuesta $6, ¿cuánto?','Con pan $0: jugo = $[[3.5]]<br>Con pan $6: jugo = $[[2]]',
+  '4y = 14 da y = 3,5. Con pan $6 queda 4y = 8, y = 2. Los puntos (0; 3,5) y (6, 2) trazan la recta de Luis.',{hint:'Con pan $0 queda 4y = 14. Con pan $6 queda 6 + 4y = 14.',
+  mount:(el)=>plane(el,{},{noPoint:true,lines:[{eq:EB,c:'luis',name:'Luis'}]})}),
+ explore('plane-both','Ahora están las dos rectas. Arrastra el punto hasta donde las dos boletas cuadren.',(el,api)=>plane(el,api,{start:[1,1],lines:[{eq:EA,c:'ana',name:'Ana',chip:true},{eq:EB,c:'luis',name:'Luis',chip:true}],on:c=>{if(c.sat(EA,c.pt)&&c.sat(EB,c.pt))api.done()}}),
+  {ok:'Se cruzan en (2, 3). Ese punto está en las dos rectas, así que cumple las dos ecuaciones. La solución es el cruce.',hint:'Busca el lugar donde las dos rectas se encuentran.'}),
+ explore('lab-par','Las rectas no siempre se cruzan. Cambia los números de la boleta de Luis hasta que las rectas sean paralelas.',(el,api)=>linesLab(el,api,'paralelas'),
+  {ok:'Paralelas: nunca se tocan, así que no hay solución. Pasa cuando dos boletas se contradicen: mismas compras, distinto precio.',hint:'Las rectas deben tener la misma inclinación. Prueba 3 panes y 2 jugos con otro total.'}),
+ explore('lab-same','Ahora al revés: haz que sean la misma recta.',(el,api)=>linesLab(el,api,'misma'),
+  {ok:'La misma recta: infinitas soluciones. La segunda boleta no aportó nada nuevo, era la primera disfrazada.',hint:'Duplica la boleta de Ana: 6 panes, 4 jugos y $24.'}),
+ choice('zero6','Resuelves un sistema y al restar las ecuaciones te queda 0 = 6. ¿Qué significa?',['No tiene solución (rectas paralelas)','Tiene infinitas soluciones','La solución es 6'],0,
+  'Cero nunca es igual a seis: las ecuaciones se contradicen. Si hubiera quedado 0 = 0, serían infinitas.',{1:'Infinitas soluciones aparecen con 0 = 0, que es cierto siempre.',2:'No hay ninguna incógnita despejada, solo una igualdad falsa.'}),
+ choice('exact','Dibujas las rectas y se cruzan "más o menos" en (2,4; 3,8). ¿Qué haces para estar seguro?',['Compruebo el punto en las dos ecuaciones','Confío en el dibujo','Dibujo las rectas más gruesas'],0,
+  'El dibujo da la intuición y el cálculo da la exactitud. Los próximos métodos calculan sin dibujar.',{1:'El ojo no distingue 2,4 de 2,37.',2:'El color no cambia dónde se cruzan.'})
+]},
+{title:'Nivel 3 · Cambiar una cosa por otra',steps:[
+ explore('bill','Un billete de $20 vale lo mismo que dos de $10. Toca el billete.',(el,api)=>{
+  el.innerHTML=`<div class="bills" id="bl"><button class="bill" id="b20">$20</button></div>`;
+  $('b20').onclick=()=>{$('bl').innerHTML='<span class="bill" style="cursor:default">$10</span><span style="font-size:28px">+</span><span class="bill" style="cursor:default">$10</span>';api.done()}},
+  {ok:'Si dos cosas valen lo mismo, puedes cambiar una por otra sin perder nada. La sustitución usa esa idea con las incógnitas.'}),
+ choice('which','Quieres dejar una incógnita sola en este sistema. ¿Cuál conviene despejar?',['La x de la segunda ecuación','La y de la primera ecuación','La x de la primera ecuación'],0,
+  'En x + 4y = 14 la x no tiene número delante: despejarla solo pide restar 4y. Las otras obligan a dividir y aparecen fracciones.',{1:'Habría que dividir entre 2.',2:'Habría que dividir entre 3.'},{vis:`<div class="card">${SYSC}</div>`}),
+ choice('despeje','Para dejar la x sola en x + 4y = 14, ¿qué haces?',['Restar 4y a los dos lados','Dividir los dos lados entre 4','Sumar 4y a los dos lados'],0,
+  'Restas 4y de los dos lados y queda x = 14 − 4y. Es una receta: el precio del pan según el precio del jugo.',{1:'Dividir entre 4 no quita 4y de la izquierda.',2:'Sumar 4y lo dejaría aún peor: x + 8y.'}),
+ explore('tapx','Cambia la x de la primera ecuación por su receta. Toca la x.',(el,api)=>{
+  el.innerHTML=`<div class="eqline" id="e1">3<button class="slot" id="sx" aria-label="x"><i class="v">x</i></button> + 2<i class="v">y</i> = 12</div><div class="eq" style="line-height:1.4">Receta: <span class="tile">${V('{x} = 14 − 4{y}')}</span></div>`;
+  $('sx').onclick=()=>{$('e1').innerHTML=V('3<span class="newpart">(14 − 4{y})</span> + 2{y} = 12');api.done()}},
+  {ok:'Mira: la x desapareció. Quedó una ecuación con una sola incógnita.'}),
+ choice('paren','¿Por qué la receta entra entre paréntesis?',['Porque el 3 multiplica todo el paquete','Porque así queda más ordenado','Porque ahí se suman los términos'],0,
+  'La x valía todo 14 − 4y, así que el 3 debe multiplicar a todo el paquete. Sin paréntesis, el cálculo sale mal.',{1:'No es adorno: cambia el resultado.',2:'No se suma nada: se multiplica por 3.'}),
+ fill('dist','Reparte el 3 y junta las y. ¿Qué número falta?','3(14 − 4{y}) + 2{y} = 12<br>42 − [[10]]{y} = 12','3 · 14 = 42, y −12y + 2y = −10y.',{hint:'Junta −12y y +2y.'}),
+ fill('solvey','Resuelve la y.','42 − 10{y} = 12<br>{y} = [[3]]','Pasas el 42 restando: −10y = −30, así que y = 3. El jugo cuesta $3.',{hint:'42 − 12 = 30. Entonces 10y = 30.'}),
+ fill('solvex','Vuelve a la receta x = 14 − 4y con y = 3.','{x} = 14 − 4 · 3 = [[2]]','x = 2: el pan cuesta $2. Es el mismo punto que viste en el cruce del plano.',{hint:'4 por 3 son 12.'}),
+ choice('trapsub','Tu amigo sustituye x = 14 − 4y en la misma ecuación de donde la despejó, x + 4y = 14, y obtiene 14 = 14. ¿Qué pasó?',['No aporta nada: hay que sustituir en la otra','Ya resolvió el sistema','Se equivocó al restar'],0,
+  'Esa ecuación ya se gastó al despejar. Siempre sustituye en la otra.',{1:'14 = 14 no dice cuánto vale ninguna incógnita.',2:'La resta estaba bien: el problema es dónde sustituyó.'}),
+ choice('ig1','Despejemos la x en las dos ecuaciones: x = (12 − 2y)/3 y x = 14 − 4y. Es el mismo pan de la misma panadería. ¿Qué haces?',['Igualar las dos recetas','Sumar las dos recetas','Multiplicar las dos recetas'],0,
+  'Si dos expresiones valen lo mismo que x, valen lo mismo entre sí. Esa es la igualación.',{1:'Sumarlas no usa que valen lo mismo.',2:'Multiplicarlas complica todo.'}),
+ fill('ig2','(12 − 2y)/3 = 14 − 4y. Multiplica los dos lados por 3.','12 − 2{y} = [[42]] − [[12]]{y}','El 14 también se triplica: 42. Y el 4y se vuelve 12y.',{hint:'Multiplica cada término del lado derecho por 3.'}),
+ fill('ig3','Junta las y a un lado y los números al otro.','[[10]]{y} = [[30]]','−2y + 12y = 10y y 42 − 12 = 30, así que y = 3 otra vez.',{hint:'Pasa −12y a la izquierda y 12 a la derecha.'}),
+ choice('ig4','¿Qué relación tiene la igualación con la sustitución?',['Es una sustitución con recetas ya despejadas','No tienen relación','Solo sirve con rectas paralelas'],0,
+  'Es lo mismo: cambias una receta por otra para quedarte con una sola incógnita.',{1:'En el fondo son la misma idea.',2:'Sirve para cualquier sistema.'})
+]},
+{title:'Nivel 4 · Sumar verdades',steps:[
+ explore('balance','Cada ecuación es una balanza en equilibrio. Multiplica x + 4y = 14 por 3 sin romper el equilibrio.',(el,api)=>balance(el,api),
+  {ok:'Hay que multiplicar los dos lados. Si tocas solo uno, la ecuación deja de ser verdad.',hint:'Usa los dos botones: uno por cada lado.'}),
+ choice('sumeq','Si A = B y C = D, ¿qué siempre es verdad?',['A + C = B + D','A + C = B − D','A = D'],0,
+  'Dos balanzas en equilibrio, juntas, siguen en equilibrio. Por eso podemos sumar o restar ecuaciones enteras.',{1:'Si sumas a un lado, debes sumar lo mismo al otro.',2:'Nada dice que A y D sean iguales.'}),
+ choice('mult','En 3x + 2y = 12 y x + 4y = 14, ¿por cuánto multiplicas la segunda para que su x iguale a la de la primera?',['Por 3','Por 2','Por 4'],0,
+  'x por 3 es 3x. La segunda queda 3x + 12y = 42.',{1:'Con 2 quedaría 2x.',2:'Con 4 quedaría 4x.'},{vis:`<div class="card">${SYSC}</div>`}),
+ choice('sumres','Ahora tienes 3x + 12y = 42 y 3x + 2y = 12. Las x tienen el mismo signo. ¿Qué haces para eliminarlas?',['Restar las ecuaciones','Sumar las ecuaciones'],0,
+  '3x − 3x = 0: la x se va.',{1:'Si sumas queda 6x, y no desaparece.'},{vis:`<div class="card"><div class="eqs" style="align-items:center">${g5(3,12,42,'t-luis')}${g5(3,2,12,'t-ana')}</div></div>`}),
+ fill('red1','Resta la segunda ecuación de la primera.','(3{x} + 12{y} = 42) − (3{x} + 2{y} = 12)<br>[[10]]{y} = [[30]]','12y − 2y = 10y y 42 − 12 = 30. Cuidado: al restar, el signo cambia en toda la ecuación de abajo.',{hint:'12 − 2 y 42 − 12.'}),
+ fill('red2','Ahora termina: halla y, y vuelve a x + 4y = 14 para hallar x.','{y} = [[3]]<br>{x} = [[2]]','y = 30 ÷ 10 = 3. Y x + 12 = 14, así que x = 2. Tercer método, misma pareja.',{hint:'Con y = 3, queda x + 12 = 14.'}),
+ choice('opp','En 2x + 3y = 12 y 4x − 3y = 6, ¿qué conviene?',['Sumar','Restar','Dividir'],0,
+  'Las y son 3y y −3y: se cancelan al sumar. Queda 6x = 18, así que x = 3.',{1:'Al restar, las y se duplican: 6y.',2:'Dividir no elimina ninguna incógnita.'}),
+ read('callback','¿Recuerdas que comparando las boletas dedujiste que el jugo cuesta $1 más que el pan? Eso ya era una reducción: restaste una boleta de otra. Lo descubriste antes de que te lo enseñara.',
+  `<div class="card"><div class="eqs" style="align-items:center">${g5(1,4,14,'t-luis')}${g5(3,2,12,'t-ana')}</div></div>`)
+]},
+{title:'Nivel 5 · Tu turno',steps:[
+ choice('pick1','¿Qué método te da menos trabajo con y = 2x − 1 y 3x + y = 9?',['Sustitución','Reducción','Gráfico'],0,
+  'La y ya está despejada: la cambias en la segunda y queda 3x + 2x − 1 = 9.',{1:'Se puede, pero primero habría que ordenar.',2:'Daría solo un cruce aproximado.'}),
+ choice('pick2','¿Y con x = 5 − y y x = 2y − 1?',['Igualación','Reducción','Gráfico'],0,
+  'Las dos despejan x. Igualas: 5 − y = 2y − 1.',{1:'Aquí ya vienen despejadas.',2:'Daría solo un cruce aproximado.'}),
+ choice('pick3','¿Y con 2x + 3y = 12 y 4x − 3y = 6?',['Reducción','Igualación','Sustitución'],0,
+  'Las y son 3y y −3y: sumas y desaparecen.',{1:'Habría que despejar con fracciones.',2:'Habría que despejar con fracciones.'}),
+ check('ch1','Reto 1 de 3. Resuelve con el método que quieras. Si te atascas, pide ayuda abajo.',(el,api)=>challenge(el,api,0)),
+ check('ch2','Reto 2 de 3.',(el,api)=>challenge(el,api,1)),
+ check('ch3','Reto 3 de 3. Este tiene números más difíciles.',(el,api)=>challenge(el,api,2)),
+ read('fin','Lo descubriste tú: una ecuación es una verdad, y resolver un sistema es combinar verdades hasta tener una con una sola incógnita.',
+  `<div class="idea">combinar verdades</div><div class="pills"><span class="pill">Gráfico: ver el cruce</span><span class="pill">Sustitución: cambiar por su equivalente</span><span class="pill">Igualación: dos recetas del mismo valor</span><span class="pill">Reducción: sumar balanzas</span></div>`,{last:true})
+]}
+];
+
+/* ===== motor de la lección ===== */
+const flat=[];LV.forEach((lv,li)=>lv.steps.forEach((st,si)=>flat.push({li,si,st})));
+let gi=0,S=null,SEL=null;
+const store={get(){try{return +localStorage.getItem('sel-prog')||0}catch(e){return 0}},set(v){try{localStorage.setItem('sel-prog',v)}catch(e){}}};
+function buildProg(){$('prog').innerHTML=LV.map(()=>'<div class="seg"><i></i></div>').join('')}
+function updProg(){const e=flat[gi];[...$('prog').children].forEach((s,i)=>{const n=LV[i].steps.length;s.firstChild.style.width=(i<e.li?100:i===e.li?(e.si/n*100):0)+'%'});$('prog').setAttribute('aria-valuenow',Math.round(gi/flat.length*100))}
+function setBtn(label,enabled){const b=$('go');b.textContent=label;b.disabled=!enabled}
+function show(i){
+ gi=i;store.set(i);const e=flat[i],st=e.st;SEL=null;
+ S={phase:'ask',en:false,check:null,onRetry:null};
+ $('ft').className='';$('sheet').hidden=true;$('lvl').textContent=LV[e.li].title;
+ $('prompt').innerHTML=V(st.text);const vis=$('vis');vis.innerHTML='';vis.dataset.sid=st.id;vis.dataset.kind=st.k;
+ vis.className='enter';void vis.offsetWidth;
+ const api={enable:v=>{S.en=v;if(S.phase==='ask'&&S.check)setBtn('Comprobar',v)},setCheck:f=>{S.check=f},
+  done:msg=>{if(S.phase!=='ask')return;succeed(msg||st.ok||st.why||'¡Muy bien!')}};
+ if(st.vis)vis.insertAdjacentHTML('beforeend',st.vis);
+ if(st.k==='read'){S.phase='ok';setBtn(st.last?'Terminar':'Continuar',true)}
+ else if(st.k==='choice')mountChoice(st,vis,api);
+ else if(st.k==='fill'){const d=document.createElement('div');d.className='eq';d.innerHTML=blanksHTML(st.eq);vis.appendChild(d);if(st.mount)st.mount(vis,{});wireBlanks(vis,api,st.why);setBtn('Comprobar',false)}
+ else if(st.k==='explore'){setBtn('Continuar',false);st.mount(vis,api)}
+ else if(st.k==='check'){setBtn('Comprobar',false);st.mount(vis,api)}
+ if(st.hint)addHint(vis,st.hint);
+ updProg();$('main').scrollTop=0;say(st.text)}
+function addHint(vis,txt){const b=document.createElement('button');b.className='hintbtn';b.textContent='¿Una pista?';const box=document.createElement('div');box.className='hintbox';box.hidden=true;box.innerHTML=V(txt);
+ b.onclick=()=>{box.hidden=!box.hidden;if(!box.hidden)say(txt)};vis.appendChild(b);vis.appendChild(box)}
+function mountChoice(st,vis,api){
+ const idx=st.opts.map((_,i)=>i);if(!st.keep)for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]]}
+ const box=document.createElement('div');box.style.cssText='display:flex;flex-direction:column;gap:10px';
+ idx.forEach((oi,n)=>{const b=document.createElement('button');b.className='opt';b.dataset.i=oi;b.innerHTML=`<span class="k">${'ABCD'[n]}</span><span>${V(st.opts[oi])}</span>`;
+  b.onclick=()=>{if(S.phase!=='ask'||b.classList.contains('wrong'))return;box.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');SEL=oi;api.enable(true)};box.appendChild(b)});
+ vis.appendChild(box);
+ api.setCheck(()=>SEL===st.ans?{ok:true,msg:st.why}:{ok:false,msg:st.hints[SEL]||'Casi. Piénsalo otra vez.'});
+ S.onRetry=()=>{const b=box.querySelector(`.opt[data-i="${SEL}"]`);if(b){b.classList.remove('sel');b.classList.add('wrong')}SEL=null;api.enable(false)};
+ S.markRight=()=>{const b=box.querySelector(`.opt[data-i="${SEL}"]`);if(b){b.classList.remove('sel');b.classList.add('right')}};
+ setBtn('Comprobar',false)}
+function sheet(kind,title,msg){const s=$('sheet');s.hidden=false;s.innerHTML=`<h3>${title}</h3><p>${V(msg)}</p>`;$('ft').className=kind}
+const GOOD=['¡Eso es!','¡Muy bien!','Exacto.','Así se hace.'];
+function succeed(msg){S.phase='ok';if(S.markRight)S.markRight();sheet('ok',GOOD[Math.floor(Math.random()*GOOD.length)],msg);setBtn(flat[gi].st.last?'Terminar':'Continuar',true);say(msg);
+ document.querySelectorAll('#vis input.blank').forEach(i=>i.disabled=true)}
+function fail(msg){S.phase='bad';sheet('bad','Todavía no',msg);setBtn('Intentar de nuevo',true);say(msg)}
+function retry(){S.phase='ask';$('ft').className='';$('sheet').hidden=true;if(S.onRetry)S.onRetry();setBtn('Comprobar',S.en&&S.check?S.en:false);if(S.en)$('go').disabled=false;const f=document.querySelector('#vis input.blank.bad');if(f)f.focus()}
+$('go').onclick=()=>{
+ const st=flat[gi].st;
+ if(S.phase==='ok'){if(st.last){SS&&SS.cancel();$('start').hidden=false;store.set(0);$('goC').hidden=true;return}next();return}
+ if(S.phase==='bad'){retry();return}
+ if(S.check){const r=S.check();r.ok?succeed(r.msg):fail(r.msg)}};
+function next(){if(gi<flat.length-1)show(gi+1)}
+$('say').onclick=()=>say(flat[gi].st.text);
+$('snd').onclick=()=>{SND=!SND;$('snd').textContent=SND?'🔊':'🔇';if(!SND&&SS)SS.cancel()};
+$('menu').onclick=()=>{$('menuP').hidden=false};
+$('menuP').onclick=e=>{if(e.target===$('menuP'))$('menuP').hidden=true};
+function buildMenu(){let k=0;$('menuL').innerHTML='';LV.forEach((lv,li)=>{const start=k;k+=lv.steps.length;const b=document.createElement('button');b.className='lv';b.innerHTML=`${lv.title}<small>${lv.steps.length} pantallas</small>`;b.onclick=()=>{$('menuP').hidden=true;show(start)};$('menuL').appendChild(b)})}
+addEventListener('keydown',e=>{if(e.key==='Escape')$('menuP').hidden=true});
+function begin(i){if(SS){const u=new SpeechSynthesisUtterance(' ');SS.speak(u)}$('start').hidden=true;buildProg();buildMenu();show(i)}
+$('go0').onclick=()=>begin(0);
+$('goC').onclick=()=>begin(Math.min(store.get(),flat.length-1));
+{const p=store.get();if(p>0&&p<flat.length-1)$('goC').hidden=false}
+const qs=new URLSearchParams(location.search);if(qs.get('step'))begin(+qs.get('step'));
 </script>
 </body>
 </html>

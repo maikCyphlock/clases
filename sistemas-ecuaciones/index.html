@@ -9,13 +9,13 @@
 /* Una lección por pantallas cortas: lees poco, mueves mucho, y cada respuesta tiene su porqué.
    Ana siempre azul, Luis siempre ámbar, lo correcto verde, el error rojo. */
 :root{color-scheme:light;--bg:#f5f7fb;--ink:#14182b;--mute:#5a627e;--card:#ffffff;--line:#d9dfee;--soft:#e9edf6;
- --ana:#0e76a3;--luis:#a56a00;--ok:#1c9a50;--on-ok:#ffffff;--okbg:#e3f6ea;--bad:#cf433b;--badbg:#fde9e7;--focus:#5558d9;--focusbg:#ecebfd;
+ --ana:#0e76a3;--luis:#a56a00;--queso:#7a45d6;--ok:#1c9a50;--on-ok:#ffffff;--okbg:#e3f6ea;--bad:#cf433b;--badbg:#fde9e7;--focus:#5558d9;--focusbg:#ecebfd;
  --f-ui:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;--f-math:"Crimson Pro",Georgia,"Times New Roman",serif;
  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0e1120;--ink:#eef0f8;--mute:#a0a8c6;--card:#171b31;--line:#2b3252;--soft:#222845;
- --ana:#58c4dd;--luis:#f7e463;--ok:#5fd38a;--on-ok:#08210f;--okbg:#12301f;--bad:#ff7168;--badbg:#38181a;--focus:#9a9cff;--focusbg:#23264d}}
+ --ana:#58c4dd;--luis:#f7e463;--queso:#c4a1ff;--ok:#5fd38a;--on-ok:#08210f;--okbg:#12301f;--bad:#ff7168;--badbg:#38181a;--focus:#9a9cff;--focusbg:#23264d}}
 :root[data-theme="dark"]{color-scheme:dark;--bg:#0e1120;--ink:#eef0f8;--mute:#a0a8c6;--card:#171b31;--line:#2b3252;--soft:#222845;
- --ana:#58c4dd;--luis:#f7e463;--ok:#5fd38a;--on-ok:#08210f;--okbg:#12301f;--bad:#ff7168;--badbg:#38181a;--focus:#9a9cff;--focusbg:#23264d}
+ --ana:#58c4dd;--luis:#f7e463;--queso:#c4a1ff;--ok:#5fd38a;--on-ok:#08210f;--okbg:#12301f;--bad:#ff7168;--badbg:#38181a;--focus:#9a9cff;--focusbg:#23264d}
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{height:100%;margin:0}
@@ -128,18 +128,46 @@ canvas.mini[hidden]{display:none}
 #start .btns{display:flex;flex-direction:column;gap:10px;width:min(100%,320px)}
 #start button{padding:14px;border-radius:14px;border:2px solid var(--ok);font:700 17px var(--f-ui);cursor:pointer;background:var(--ok);color:var(--on-ok)}
 #start button.alt{background:transparent;color:var(--ok)}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .15em;line-height:1.15}.frac>span:first-child{border-bottom:2px solid currentColor;padding:0 .25em}.frac>span:last-child{padding:0 .25em}
+/* juegos y 3D */
+.xp{font-weight:700;font-size:14px;color:var(--luis);min-width:56px;text-align:center}
+.xp.bump{animation:bump .4s}@keyframes bump{50%{transform:scale(1.35)}}
+canvas.gl3{display:block;width:100%;height:min(50vh,380px);border:1px solid var(--line);border-radius:14px;background:var(--card);touch-action:none;cursor:grab}
+.hud{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:700;font-size:15px;flex-wrap:wrap}
+.timer{height:10px;border-radius:99px;background:var(--soft);overflow:hidden}.timer i{display:block;height:100%;width:100%;background:var(--ok)}
+.cards{display:flex;flex-direction:column;gap:8px}
+.tc{display:flex;gap:10px;align-items:center;width:100%;text-align:left;border:2px solid var(--line);border-radius:12px;background:var(--card);padding:8px 12px;cursor:pointer;color:var(--ink);font:400 clamp(20px,4.4vw,26px) var(--f-math)}
+.tc.sel1{border-color:var(--ana);background:var(--focusbg)}.tc.sel2{border-color:var(--luis);background:var(--focusbg)}
+.tc.new{animation:in .4s both}
+.tc .bd{flex:0 0 auto;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font:700 13px var(--f-ui);background:var(--mute);color:var(--bg)}
+.tc .bd.ana{background:var(--ana)}.tc .bd.luis{background:var(--luis)}.tc .bd.q{background:var(--queso)}
+.tc small{margin-left:auto;font:600 12px var(--f-ui);color:var(--mute);text-align:right}
+.ops{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.xbtn.ghost{border-color:var(--line);color:var(--mute)}
+.xbtn:disabled{opacity:.45;cursor:not-allowed}
+.mulbox{display:inline-flex;gap:6px;align-items:center}
+.mulbox input{width:4em;height:38px;border:2px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);text-align:center;font:600 16px var(--f-ui)}
+.t-q{color:var(--queso)}
+#lvlup{position:fixed;inset:0;z-index:45;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px}
+#lvlup .box{background:var(--card);border-radius:20px;padding:26px 22px;text-align:center;max-width:380px;animation:in .4s both}
+#lvlup h2{margin:0 0 6px;font:italic 600 32px var(--f-math)}#lvlup p{margin:0 0 16px;color:var(--mute)}
+#lvlup button{width:100%;padding:14px;border-radius:14px;border:0;font:700 17px var(--f-ui);background:var(--ok);color:var(--on-ok);cursor:pointer}
+#fx{position:fixed;inset:0;z-index:60;pointer-events:none}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <div id="app">
- <header id="hd"><button class="ib" id="menu" aria-label="Ver niveles">☰</button><div id="prog" role="progressbar" aria-label="Progreso de la lección"></div><button class="ib" id="snd" aria-label="Activar o silenciar la voz">🔊</button></header>
+ <header id="hd"><button class="ib" id="menu" aria-label="Ver niveles">☰</button><div id="prog" role="progressbar" aria-label="Progreso de la lección"></div><span class="xp" id="xp" aria-label="Puntos">⚡ 0</span><button class="ib" id="snd" aria-label="Activar o silenciar voz y sonidos">🔊</button></header>
  <main id="main"><div class="lvl" id="lvl"></div><p id="prompt"></p><button class="say" id="say">Escuchar otra vez</button><div id="vis"></div></main>
  <footer id="ft"><div id="sheet" hidden></div><button id="go">Continuar</button></footer>
 </div>
+<canvas id="fx"></canvas>
+<div id="lvlup" hidden><div class="box"><h2></h2><p></p><button id="lvbtn">Seguir</button></div></div>
 <div id="menuP" hidden><div class="panel"><h2>Niveles</h2><div id="menuL"></div></div></div>
-<div id="start"><h1>Sistemas de ecuaciones</h1><p>Aprendes haciendo. Mueves, pruebas, te equivocas un poco y descubres por qué funciona. Son cinco niveles y unos 25 minutos, con narrador opcional.</p><div class="btns"><button id="go0">Comenzar</button><button class="alt" id="goC" hidden>Seguir donde lo dejé</button></div></div>
+<div id="start"><h1>Sistemas de ecuaciones</h1><p>Aprendes haciendo. Mueves, pruebas, te equivocas un poco y descubres por qué funciona. Son seis niveles con escenas en 3D, tres juegos y un laboratorio, unos 35 minutos, con narrador opcional.</p><div class="btns"><button id="go0">Comenzar</button><button class="alt" id="goC" hidden>Seguir donde lo dejé</button></div></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const $=id=>document.getElementById(id);
 const V=t=>t.replace(/\{(\w)\}/g,'<i class="v">$1</i>');
@@ -229,6 +257,7 @@ const tm=(k,v)=>{const a=Math.abs(k);return (k<0?'−':'')+(a===1?'':a)+`<i clas
 const g5=(a,b,c,cls='')=>`<div class="g5 ${cls}"><span></span><span>${a==null?'':tm(a,'x')}</span><span>${a==null||b==null?'':(b<0?'−':'+')}</span><span>${b==null?'':tm(a==null?b:Math.abs(b),'y')}</span><span>=</span><span>${numS(c)}</span></div>`;
 const SYS=(A,B,sm='')=>`<div class="sys ${sm}"><span class="brace">{</span><div class="eqs">${g5(A[0],A[1],A[2],'t-ana')}${g5(B[0],B[1],B[2],'t-luis')}</div></div>`;
 const EA=[3,2,12],EB=[1,4,14];
+const fr=(n,d)=>`<span class="frac"><span>${n}</span><span>${d}</span></span>`;
 const SYSC=SYS(EA,EB,'sm');
 const bolCard=(who,cls,items,tot)=>`<div class="bolx ${cls}"><div class="who">🧾 ${who}</div><div class="items">${items}</div><div class="tot">${tot}</div></div>`;
 const BOLS=`<div class="bolrow">${bolCard('Ana','ana','🥖🥖🥖🧃🧃','$12')}${bolCard('Luis','luis','🥖🧃🧃🧃🧃','$14')}</div>`;
@@ -252,11 +281,11 @@ function endsIn(a,b,c,x0,x1,y0,y1){const P=[],ok=(x,y)=>!P.some(p=>Math.abs(p[0]
  return P.length>1?P.slice(0,2):null}
 function plane(el,api,cfg){
  const wrap=document.createElement('div');
- wrap.innerHTML=`<canvas class="plane ${cfg.noPoint||cfg.small?'s':''}" ${cfg.noPoint?'':'tabindex="0"'} aria-label="Plano de precios. Pan en el eje horizontal, jugo en el vertical.${cfg.noPoint?'':' Usa las flechas para mover el punto.'}"></canvas><div class="pstat" aria-live="polite"></div>`;
+ wrap.innerHTML=`<canvas class="plane ${cfg.small?'s':''}" ${cfg.noPoint?'':'tabindex="0"'} aria-label="Plano de precios. Pan en el eje horizontal, jugo en el vertical.${cfg.noPoint?'':' Usa las flechas para mover el punto.'}"></canvas><div class="pstat" aria-live="polite"></div>`;
  el.appendChild(wrap);
  const cv=wrap.querySelector('canvas'),ps=wrap.querySelector('.pstat');
  const X0=0,X1=10,Y0=0,Y1=9,mL=36,mB=30,mT=12,mR=16;
- const ctx={lines:cfg.lines||[],pt:cfg.noPoint?null:(cfg.start||[1,1]),trace:[],cv,mark:cfg.mark||[]};
+ const ctx={lines:cfg.lines||[],pt:cfg.noPoint?null:(cfg.start||[1,1]),trace:[],cv,mark:cfg.mark||[],bad:[]};
  const sat=(eq,p)=>Math.abs(eq[0]*p[0]+eq[1]*p[1]-eq[2])<1e-9;ctx.sat=sat;
  function draw(){
   const dpr=Math.min(devicePixelRatio||1,2),W=cv.clientWidth,H=cv.clientHeight;if(!W)return;
@@ -271,7 +300,7 @@ function plane(el,api,cfg){
   ctx.lines.forEach(l=>{if(l.show===false)return;const e=endsIn(l.eq[0],l.eq[1],l.eq[2],X0,X1,Y0,Y1);if(!e)return;g.strokeStyle=c(l.c);g.lineWidth=3.5;g.lineCap='round';g.beginPath();g.moveTo(X(e[0][0]),Y(e[0][1]));g.lineTo(X(e[1][0]),Y(e[1][1]));g.stroke()});
   const dot=(p,r,col)=>{g.fillStyle=col;g.beginPath();g.arc(X(p[0]),Y(p[1]),r,0,7);g.fill()};
   ctx.mark.forEach(p=>{dot(p,6,c('ink'));g.fillStyle=c('ink');g.font='600 13px Figtree,sans-serif';g.textAlign='left';g.fillText(`(${fmt(p[0])}, ${fmt(p[1])})`,X(p[0])+9,Y(p[1])-9)});
-  ctx.trace.forEach(p=>dot(p,6,c('ana')));
+  ctx.trace.forEach(p=>dot(p,6,c('ana')));ctx.bad.forEach(p=>dot(p,8,c('bad')));
   if(ctx.pt){const vis=ctx.lines.filter(l=>l.chip),all=vis.length&&vis.every(l=>sat(l.eq,ctx.pt)),some=vis.filter(l=>sat(l.eq,ctx.pt));
    const col=all?c('ok'):some.length?c(some[0].c):c('focus');dot(ctx.pt,13,col);g.fillStyle=c('card');g.beginPath();g.arc(X(ctx.pt[0]),Y(ctx.pt[1]),5,0,7);g.fill()}
   if(ctx.pt){ps.innerHTML=`<span>pan $${fmt(ctx.pt[0])} · jugo $${fmt(ctx.pt[1])}</span>`+ctx.lines.filter(l=>l.chip).map(l=>{const ok=sat(l.eq,ctx.pt),v=l.eq[0]*ctx.pt[0]+l.eq[1]*ctx.pt[1];return `<span class="chip ${ok?'ok':'no'}">${l.name} ${ok?'✓ cuadra':'pagaría $'+fmt(v)}</span>`}).join('')}
@@ -284,6 +313,7 @@ function plane(el,api,cfg){
   let drag=false;cv.addEventListener('pointerdown',e=>{drag=true;cv.setPointerCapture(e.pointerId);cv.style.cursor='grabbing';move(at(e))});
   cv.addEventListener('pointermove',e=>{if(drag)move(at(e))});cv.addEventListener('pointerup',()=>{drag=false;cv.style.cursor='grab'});
   cv.addEventListener('keydown',e=>{const d={ArrowRight:[.5,0],ArrowLeft:[-.5,0],ArrowUp:[0,.5],ArrowDown:[0,-.5]}[e.key];if(d){e.preventDefault();move([ctx.pt[0]+d[0],ctx.pt[1]+d[1]])}})}
+ if(cfg.pick){cv.style.cursor='crosshair';cv.addEventListener('pointerdown',e=>{const r=cv.getBoundingClientRect(),W=r.width,H=r.height;cfg.pick([X0+((e.clientX-r.left)-mL)/(W-mL-mR)*(X1-X0),Y0+((H-mB-(e.clientY-r.top)))/(H-mB-mT)*(Y1-Y0)])})}
  const ro=new ResizeObserver(draw);ro.observe(cv);matchMedia('(prefers-color-scheme: dark)').addEventListener('change',draw);
  requestAnimationFrame(draw);return ctx}
 
@@ -359,7 +389,254 @@ function drawMini(cv,s,R=10){const c=css(),dpr=Math.min(devicePixelRatio||1,2),W
   if(b!==0){g.moveTo(X(-R),Y((cc+a*R)/b));g.lineTo(X(R),Y((cc-a*R)/b))}else{g.moveTo(X(cc/a),0);g.lineTo(X(cc/a),H)}g.stroke()});
  g.fillStyle=c('ok');g.beginPath();g.arc(X(s.x0),Y(s.y0),6,0,7);g.fill()}
 
+/* ===== sonido y celebración ===== */
+let AC=null;
+function beep(f,d=.12,type='sine',v=.05){if(!SND)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.value=f;g.gain.value=v;o.connect(g);g.connect(AC.destination);o.start();g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.stop(AC.currentTime+d)}catch(e){}}
+const sfx={ok(){beep(660,.1);setTimeout(()=>beep(880,.16),90)},bad(){beep(190,.22,'square',.035)},pop(){beep(520,.06)},win(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.2),i*110))}};
+let XP=0;
+function addXP(n){XP+=n;const e=$('xp');e.textContent='⚡ '+XP;e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');try{localStorage.setItem('sel-xp',XP)}catch(err){}}
+function confetti(){if(reduce)return;const cv=$('fx');cv.width=innerWidth;cv.height=innerHeight;const g=cv.getContext('2d'),c=css(),cols=[c('ok'),c('ana'),c('luis'),c('focus'),c('bad')];
+ const P=Array.from({length:110},()=>({x:innerWidth/2+(Math.random()-.5)*220,y:innerHeight*.62,vx:(Math.random()-.5)*11,vy:-Math.random()*14-4,s:5+Math.random()*6,c:cols[(Math.random()*cols.length)|0],r:Math.random()*6}));
+ let t=0;(function f(){g.clearRect(0,0,cv.width,cv.height);P.forEach(p=>{p.vy+=.36;p.x+=p.vx;p.y+=p.vy;p.r+=.2;g.fillStyle=p.c;g.save();g.translate(p.x,p.y);g.rotate(p.r);g.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);g.restore()});if(++t<120)requestAnimationFrame(f);else g.clearRect(0,0,cv.width,cv.height)})()}
+const cleanups=[];
+function runCleanups(){while(cleanups.length){try{cleanups.pop()()}catch(e){}}}
+
+/*G3-START*/
+/* ===== geometría 3D pura (planos recortados por una caja) ===== */
+const dot3=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+const cross3=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+const norm3=a=>{const l=Math.hypot(a[0],a[1],a[2]);return a.map(v=>v/l)};
+function clipPoly(poly,m,d){const out=[];for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],da=dot3(m,a)-d,db=dot3(m,b)-d;
+ if(da<=0)out.push(a);if((da<0&&db>0)||(da>0&&db<0)){const t=da/(da-db);out.push(a.map((c,k)=>c+(b[k]-c)*t))}}return out}
+function planePoly(n,D,box){const nl=Math.hypot(n[0],n[1],n[2]),nn=n.map(v=>v/nl),p0=nn.map(v=>v*D/nl);
+ const ax=Math.abs(nn[0])<.9?[1,0,0]:[0,1,0],u=norm3(cross3(nn,ax)),v=cross3(nn,u),L=80;
+ let poly=[[-L,-L],[L,-L],[L,L],[-L,L]].map(([s,t])=>p0.map((c,i)=>c+u[i]*s+v[i]*t));
+ const [xa,xb,ya,yb,za,zb]=box;
+ for(const [m,d] of [[[-1,0,0],-xa],[[1,0,0],xb],[[0,-1,0],-ya],[[0,1,0],yb],[[0,0,-1],-za],[[0,0,1],zb]]){poly=clipPoly(poly,m,d);if(!poly.length)break}
+ return poly}
+function solve3(M,r){const det=m=>m[0][0]*(m[1][1]*m[2][2]-m[1][2]*m[2][1])-m[0][1]*(m[1][0]*m[2][2]-m[1][2]*m[2][0])+m[0][2]*(m[1][0]*m[2][1]-m[1][1]*m[2][0]);
+ const D=det(M);return [0,1,2].map(i=>det(M.map((row,k)=>row.map((v,j)=>j===i?r[k]:v)))/D)}
+function lineInBox(n1,d1,n2,d2,box){const dir=cross3(n1,n2);if(Math.hypot(dir[0],dir[1],dir[2])<1e-9)return null;
+ const p=solve3([n1,n2,dir],[d1,d2,0]),lo=[box[0],box[2],box[4]],hi=[box[1],box[3],box[5]];let t0=-1e4,t1=1e4;
+ for(let i=0;i<3;i++){const di=dir[i];if(Math.abs(di)<1e-12){if(p[i]<lo[i]-1e-9||p[i]>hi[i]+1e-9)return null}
+  else{let a=(lo[i]-p[i])/di,b=(hi[i]-p[i])/di;if(a>b){const t=a;a=b;b=t}t0=Math.max(t0,a);t1=Math.min(t1,b)}}
+ if(t0>t1)return null;return [p.map((c,i)=>c+dir[i]*t0),p.map((c,i)=>c+dir[i]*t1)]}
+/*G3-END*/
+
+/* ===== 3D con three.js ===== */
+const hasGL=()=>{try{const c=document.createElement('canvas');return typeof THREE!=='undefined'&&!!(c.getContext('webgl')||c.getContext('experimental-webgl'))}catch(e){return false}};
+function noGL(el,api){el.innerHTML='<div class="card">Este navegador no pudo abrir la escena 3D, así que saltamos esta parte. Lo importante ya lo viste en el plano.</div>';setTimeout(()=>api.done('Seguimos. Esta parte era un extra.'),0)}
+const tcol=k=>new THREE.Color(css()(k));
+function sprite3(t,colKey,w=2.6,h=.65){const c=document.createElement('canvas');c.width=512;c.height=128;const x=c.getContext('2d');x.font='italic 600 62px "Crimson Pro",Georgia,serif';x.fillStyle=css()(colKey);x.textAlign='center';x.textBaseline='middle';x.fillText(t,256,66);
+ const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false,transparent:true}));s.scale.set(w,h,1);s.renderOrder=10;return s}
+function planeObj(n,D,box,colKey,op=.4){const poly=planePoly(n,D,box);if(poly.length<3)return null;const g=new THREE.Group(),pos=[];
+ for(let i=1;i<poly.length-1;i++)pos.push(...poly[0],...poly[i],...poly[i+1]);
+ const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+ g.add(new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:tcol(colKey),transparent:true,opacity:op,side:THREE.DoubleSide,depthWrite:false})));
+ const lp=[];poly.forEach(p=>lp.push(...p));const lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.Float32BufferAttribute(lp,3));
+ g.add(new THREE.LineLoop(lg,new THREE.LineBasicMaterial({color:tcol(colKey)})));return g}
+function cylBetween(P,Q,r,color){const a=new THREE.Vector3(...P),b=new THREE.Vector3(...Q),d=b.clone().sub(a),L=d.length();const g=new THREE.CylinderGeometry(r,r,L,10);g.translate(0,L/2,0);
+ const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color}));m.position.copy(a);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.clone().normalize());return m}
+function boxEdges(box,colKey='line'){const [x0,x1,y0,y1,z0,z1]=box,c=[[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0],[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]],v=[];
+ [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]].forEach(([a,b])=>v.push(...c[a],...c[b]));
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));return new THREE.LineSegments(g,new THREE.LineBasicMaterial({color:tcol(colKey)}))}
+function three3d(el,cfg){
+ const cv=document.createElement('canvas');cv.className='gl3';cv.tabIndex=0;cv.setAttribute('aria-label',cfg.label||'Escena 3D. Arrastra para girar.');el.appendChild(cv);
+ const R=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});R.setPixelRatio(Math.min(devicePixelRatio||1,2));
+ const sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(40,1,.1,300);cam.up.set(0,0,1);
+ const T=new THREE.Vector3(...(cfg.target||[0,0,0]));let th=cfg.theta??-.9,ph=cfg.phi??1.05,rad=cfg.dist??22,auto=cfg.auto!==false,alive=true,goal=null;
+ function size(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+ const ro=new ResizeObserver(size);ro.observe(cv);
+ const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();
+ const setRay=e=>{const r=cv.getBoundingClientRect();mouse.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);ray.setFromCamera(mouse,cam);return ray};
+ let mode=null,lx=0,ly=0;
+ cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);cv.focus({preventScroll:true});if(cfg.down&&cfg.down(setRay(e),e)){mode='obj'}else{mode='orbit';lx=e.clientX;ly=e.clientY;auto=false;goal=null}});
+ cv.addEventListener('pointermove',e=>{if(mode==='obj'){cfg.drag&&cfg.drag(setRay(e),e)}else if(mode==='orbit'){th-=(e.clientX-lx)*.01;ph=Math.min(1.52,Math.max(.12,ph-(e.clientY-ly)*.01));lx=e.clientX;ly=e.clientY}});
+ const up=()=>{mode=null};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+ cv.addEventListener('keydown',e=>{if(cfg.key)cfg.key(e)});
+ const TAU=Math.PI*2;
+ function frame(){if(!alive)return;if(auto&&!reduce)th+=.0035;
+  if(goal){th+=(goal.th-th)*.12;ph+=(goal.ph-ph)*.12;if(Math.abs(goal.th-th)<.004&&Math.abs(goal.ph-ph)<.004)goal=null}
+  cam.position.set(T.x+rad*Math.sin(ph)*Math.cos(th),T.y+rad*Math.sin(ph)*Math.sin(th),T.z+rad*Math.cos(ph));cam.lookAt(T);R.render(sc,cam);cfg.tick&&cfg.tick();requestAnimationFrame(frame)}
+ size();frame();
+ const api={sc,cam,R,cv,add:o=>{sc.add(o);return o},
+  view(t,p,rel){auto=false;const base=rel?th+t:t;goal={th:th+((((base-th)%TAU)+TAU+Math.PI)%TAU-Math.PI),ph:p??ph}},
+  dispose(){alive=false;ro.disconnect();R.dispose();try{R.forceContextLoss()}catch(e){}}};
+ cleanups.push(()=>api.dispose());return api}
+function viewButtons(el,g){el.insertAdjacentHTML('beforeend',`<div class="btnrow"><button class="xbtn" data-v="l">⟲ Girar</button><button class="xbtn" data-v="r">Girar ⟳</button><button class="xbtn" data-v="top">Desde arriba</button><button class="xbtn" data-v="side">De lado</button></div>`);
+ el.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{const v=b.dataset.v;if(v==='l')g.view(-.7,null,true);else if(v==='r')g.view(.7,null,true);else if(v==='top')g.view(-1.57,.12);else g.view(-.9,1.4)})}
+
+/* ===== escena 3D: lonas de error sobre el suelo de precios ===== */
+function heights3d(el,api){
+ if(!hasGL())return noGL(el,api);
+ const BOX=[0,8,0,8,-4,4],E=[{n:[3,2,-4],d:12,col:'ana',name:'Ana',pay:(x,y)=>3*x+2*y,goal:12,ab:[3,2,12]},{n:[1,4,-4],d:14,col:'luis',name:'Luis',pay:(x,y)=>x+4*y,goal:14,ab:[1,4,14]}];
+ let pt=[1,1],finished=false,g3;
+ g3=three3d(el,{target:[4,4,.4],dist:17.5,theta:-.95,phi:1.0,label:'Dos lonas sobre el suelo de precios. Arrastra el marcador por el suelo o usa las flechas.',
+  down:(r)=>{if(r.intersectObject(hit).length)return true;const p=floorPt(r);if(p&&p.x>-.4&&p.x<8.4&&p.y>-.4&&p.y<8.4){move(p.x,p.y);return true}return false},
+  drag:(r)=>{const p=floorPt(r);if(p)move(p.x,p.y)},
+  key:e=>{const d={ArrowRight:[.5,0],ArrowLeft:[-.5,0],ArrowUp:[0,.5],ArrowDown:[0,-.5]}[e.key];if(d){e.preventDefault();move(pt[0]+d[0],pt[1]+d[1])}}});
+ const A=o=>g3.add(o);
+ // suelo y cuadrícula
+ {const v=[];for(let i=0;i<=8;i++)v.push(i,0,0,i,8,0,0,i,0,8,i,0);const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));A(new THREE.LineSegments(g,new THREE.LineBasicMaterial({color:tcol('line')})));
+  const fl=new THREE.Mesh(new THREE.PlaneGeometry(8,8),new THREE.MeshBasicMaterial({color:tcol('soft'),transparent:true,opacity:.55,side:THREE.DoubleSide,depthWrite:false}));fl.position.set(4,4,-.01);A(fl)}
+ A(boxEdges(BOX));
+ const lx=sprite3('pan $','ink',2.2,.55);lx.position.set(9.2,0,0);A(lx);const ly=sprite3('jugo $','ink',2.2,.55);ly.position.set(0,9.4,0);A(ly);
+ const su=sprite3('sobra','mute',1.8,.5);su.position.set(-.8,-.8,3.6);A(su);const fa=sprite3('falta','mute',1.8,.5);fa.position.set(-.8,-.8,-3.6);A(fa);
+ E.forEach(e=>{e.mesh=planeObj(e.n,e.d,BOX,e.col,.38);A(e.mesh)});
+ const marker=new THREE.Mesh(new THREE.SphereGeometry(.26,18,14),new THREE.MeshBasicMaterial({color:tcol('focus')}));A(marker);
+ const hit=new THREE.Mesh(new THREE.SphereGeometry(.9,8,6),new THREE.MeshBasicMaterial({visible:false}));A(hit);
+ const rodG=new THREE.CylinderGeometry(.09,.09,1,10);rodG.translate(0,.5,0);rodG.rotateX(Math.PI/2);
+ E.forEach(e=>{e.rod=new THREE.Mesh(rodG,new THREE.MeshBasicMaterial({color:tcol(e.col)}));A(e.rod);e.end=new THREE.Mesh(new THREE.SphereGeometry(.2,12,10),new THREE.MeshBasicMaterial({color:tcol(e.col)}));A(e.end)});
+ const floorPlane=new THREE.Plane(new THREE.Vector3(0,0,1),0);
+ function floorPt(r){const p=new THREE.Vector3();return r.ray.intersectPlane(floorPlane,p)?p:null}
+ el.insertAdjacentHTML('beforeend','<div class="pstat" id="h3s" aria-live="polite"></div>');
+ viewButtons(el,g3);
+ function move(x,y){x=Math.min(8,Math.max(0,Math.round(x*2)/2));y=Math.min(8,Math.max(0,Math.round(y*2)/2));if(x===pt[0]&&y===pt[1])return;pt=[x,y];upd()}
+ function upd(){marker.position.set(pt[0],pt[1],0);hit.position.copy(marker.position);let ok=true,html=`<span>pan $${fmt(pt[0])} · jugo $${fmt(pt[1])}</span>`;
+  E.forEach(e=>{const diff=e.pay(pt[0],pt[1])-e.goal,h=diff/4;e.rod.position.set(pt[0],pt[1],0);e.rod.scale.z=Math.abs(h)<1e-9?.001:h;e.end.position.set(pt[0],pt[1],h);if(diff!==0)ok=false;
+   html+=`<span class="chip ${diff===0?'ok':'no'}">${e.name} ${diff===0?'✓ cuadra':diff<0?'faltan $'+fmt(-diff):'sobran $'+fmt(diff)}</span>`});
+  $('h3s').innerHTML=html;if(ok&&!finished){finished=true;E.forEach(e=>{const [a,b,c]=e.ab,pp=endsIn(a,b,c,0,8,0,8);if(pp)A(cylBetween([pp[0][0],pp[0][1],.03],[pp[1][0],pp[1][1],.03],.07,tcol(e.col)))});g3.view(-1.57,.5);api.done()}}
+ upd()}
+
+/* ===== escena 3D: tres incógnitas, tres planos ===== */
+function planes3d(el,api){
+ if(!hasGL())return noGL(el,api);
+ const BOX=[0,8,0,8,0,8],E=[{n:[1,1,1],d:9,col:'ana',name:'Ana'},{n:[1,2,3],d:20,col:'luis',name:'Luis'},{n:[2,1,2],d:15,col:'queso',name:'Marta'}];
+ const on=[false,false,false];let seen=false;
+ const g3=three3d(el,{target:[4,4,4],dist:20,theta:-.85,phi:1.0,label:'Tres planos en el espacio. Arrastra para girar.'});
+ const A=o=>g3.add(o);A(boxEdges(BOX));
+ {const v=[];for(let i=0;i<=8;i++)v.push(i,0,0,i,8,0,0,i,0,8,i,0);const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));A(new THREE.LineSegments(g,new THREE.LineBasicMaterial({color:tcol('line')})))}
+ [['pan',9.4,0,0],['jugo',0,9.4,0],['queso',0,0,9.4]].forEach(([t,x,y,z])=>{const s=sprite3(t,'ink',1.9,.5);s.position.set(x,y,z);A(s)});
+ E.forEach(e=>{e.mesh=planeObj(e.n,e.d,BOX,e.col,.38);e.mesh.visible=false;A(e.mesh)});
+ const pairs=[[0,1],[0,2],[1,2]].map(([i,j])=>{const L=lineInBox(E[i].n,E[i].d,E[j].n,E[j].d,BOX);if(!L)return null;const m=cylBetween(L[0],L[1],.09,tcol('ink'));m.visible=false;A(m);return {i,j,m}}).filter(Boolean);
+ const pt=new THREE.Mesh(new THREE.SphereGeometry(.34,18,14),new THREE.MeshBasicMaterial({color:tcol('ok')}));pt.position.set(2,3,4);pt.visible=false;A(pt);
+ const pl=sprite3('(2, 3, 4)','ok',2.8,.7);pl.position.set(2,3,5.3);pl.visible=false;A(pl);
+ el.insertAdjacentHTML('beforeend',`<div class="btnrow" id="pbt">${E.map((e,i)=>`<button class="xbtn t-${e.col==='ana'?'ana':e.col==='luis'?'luis':'q'}" data-i="${i}" aria-pressed="false" style="${e.col==='queso'?'color:var(--queso)':''}">Boleta de ${e.name}</button>`).join('')}</div><div class="balmsg" id="pmsg">Enciende una boleta.</div>`);
+ viewButtons(el,g3);
+ function upd(){const n=on.filter(Boolean).length;E.forEach((e,i)=>e.mesh.visible=on[i]);
+  pairs.forEach(p=>p.m.visible=n===2&&on[p.i]&&on[p.j]);pt.visible=pl.visible=n===3;
+  el.querySelectorAll('#pbt button').forEach((b,i)=>{b.setAttribute('aria-pressed',on[i]);b.style.background=on[i]?'var(--soft)':'transparent'});
+  $('pmsg').innerHTML=['Enciende una boleta.','Un plano: cualquier punto de la hoja cumple esa boleta. Infinitas soluciones.','Dos planos se cortan en una recta: todavía hay infinitas soluciones.','Tres planos se cortan en un solo punto: pan $2, jugo $3 y queso $4.'][n];
+  if(n===3&&!seen){seen=true;g3.view(-.5,1.05);api.done()}}
+ el.querySelectorAll('#pbt button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;on[i]=!on[i];sfx.pop();upd()});upd()}
+
+/*MESA-START*/
+/* ===== tarjetas de boleta: operaciones puras ===== */
+const gcdA=a=>a.reduce((g,v)=>gcd(g,Math.abs(v)),0);
+const cMul=(c,n)=>({co:c.co.map(v=>v*n),k:c.k*n});
+const cAdd=(a,b,s)=>({co:a.co.map((v,i)=>v+s*b.co[i]),k:a.k+s*b.k});
+const cGcd=c=>gcdA([...c.co,c.k]);
+const cDiv=(c,n)=>({co:c.co.map(v=>v/n),k:c.k/n});
+function cTxt(c,nm){const parts=[];c.co.forEach((v,i)=>{if(v===0)return;const a=Math.abs(v),t=(a===1?'':a)+`{${nm[i]}}`;parts.push(parts.length?(v<0?' − ':' + ')+t:(v<0?'−':'')+t)});return (parts.join('')||'0')+' = '+(c.k<0?'−'+(-c.k):c.k)}
+function solvedOf(cards,n){const out=Array(n).fill(null);cards.forEach(c=>{const nz=c.co.map((v,i)=>v!==0?i:-1).filter(i=>i>=0);if(nz.length===1&&c.co[nz[0]]===1)out[nz[0]]=c.k});return out}
+function hintFor(cards,n,nm){
+ for(const c of cards){const nz=c.co.filter(v=>v!==0);if(nz.length===1&&nz[0]!==1)return `La tarjeta ${c.id} ya tiene una sola incógnita, pero con un número delante. Divídela para dejarla sola.`}
+ const sol=solvedOf(cards,n);
+ for(let i=0;i<n;i++){if(sol[i]!==null)continue;for(let a=0;a<cards.length;a++)for(let b=a+1;b<cards.length;b++){const x=cards[a].co[i],y=cards[b].co[i];
+  if(x!==0&&Math.abs(x)===Math.abs(y)&&(cards[a].co.filter(v=>v).length>1||cards[b].co.filter(v=>v).length>1)){const r=Math.sign(x)===Math.sign(y);return `En las tarjetas ${cards[a].id} y ${cards[b].id} la {${nm[i]}} tiene el mismo número${r?'':' con signo opuesto'}. Prueba ${r?'restarlas':'sumarlas'}: esa incógnita desaparece.`}}}
+ let best=null;for(let i=0;i<n;i++){if(sol[i]!==null)continue;const idx=cards.map((c,k)=>c.co[i]!==0?k:-1).filter(k=>k>=0);if(idx.length>=2)best=best||[i,idx[0],idx[1]]}
+ if(best){const [i,a,b]=best;return `Quieres que la {${nm[i]}} tenga el mismo número en las tarjetas ${cards[a].id} y ${cards[b].id}. Multiplica cada una por el número de la otra y luego combínalas.`}
+ return 'Mira qué incógnitas ya conoces y combina tarjetas para encontrar las que faltan.'}
+/*MESA-END*/
+
+/* ===== juego: Atrapa el cruce ===== */
+function gameCross(el,api){
+ const N=6,TT=[14,13,12,11,10,9],TY=['x','x','x','p','x','p'];
+ el.insertAdjacentHTML('beforeend',`<div class="hud"><span>Ronda <b id="gr">0</b>/${N}</span><span>Racha <b id="gk">0</b></span><span>⚡ <b id="gs">0</b></span></div><div class="timer"><i id="gt"></i></div><div class="eq" id="geq" style="line-height:1.35;min-height:2.7em"></div>`);
+ const P=plane(el,api,{noPoint:true,small:true,lines:[],pick:p=>pick(p)});
+ el.insertAdjacentHTML('beforeend',`<div class="btnrow"><button class="xbtn" id="gnone" disabled>No se cruzan</button><button class="xbtn" id="gstart">Empezar</button></div><div class="balmsg" id="gmsg">Toca el punto donde se cruzan las rectas antes de que se acabe el tiempo. A veces no se cruzan.</div>`);
+ let round=0,score=0,streak=0,right=0,cur=null,t0=0,tot=0,raf=0,running=false,alive=true;
+ cleanups.push(()=>{alive=false;cancelAnimationFrame(raf)});
+ const msg=m=>{$('gmsg').innerHTML=V(m)};
+ function gen(type){for(;;){
+  if(type==='x'){const x0=rnd(1,8),y0=rnd(1,7),a1=rnd(1,5),b1=rnd(1,5),a2=rnd(1,5),b2=rnd(1,5);if(a1*b2===a2*b1)continue;return {type,x0,y0,L:[[a1,b1,a1*x0+b1*y0],[a2,b2,a2*x0+b2*y0]]}}
+  const a=rnd(1,5),b=rnd(1,5),p1=[rnd(1,8),rnd(1,7)],p2=[rnd(1,8),rnd(1,7)],c1=a*p1[0]+b*p1[1],c2=a*p2[0]+b*p2[1];if(c1===c2)continue;return {type,L:[[a,b,c1],[a,b,c2]]}}}
+ const left=()=>Math.max(0,tot-(performance.now()-t0)/1000);
+ function startRound(){cur=gen(TY[round]);round++;tot=TT[round-1];t0=performance.now();running=true;
+  P.lines=[{eq:cur.L[0],c:'ana'},{eq:cur.L[1],c:'luis'}];P.mark=[];P.bad=[];P.draw();P.cv.dataset.cross=cur.type==='x'?cur.x0+','+cur.y0:'none';
+  $('gr').textContent=round;$('geq').innerHTML=V(`<span class="t-ana">${eqS(...cur.L[0])}</span> &nbsp;&nbsp; <span class="t-luis">${eqS(...cur.L[1])}</span>`);
+  $('gnone').disabled=false;$('gstart').hidden=true;msg('¡Ya!');cancelAnimationFrame(raf);tick()}
+ function tick(){if(!alive||!running)return;const l=left();$('gt').style.width=(l/tot*100)+'%';$('gt').style.background=l<3?'var(--bad)':'var(--ok)';if(l<=0)endRound(false,'Se acabó el tiempo.',0);else raf=requestAnimationFrame(tick)}
+ function endRound(ok,m,pts){running=false;cancelAnimationFrame(raf);$('gnone').disabled=true;
+  if(ok){streak++;right++;score+=pts;sfx.ok()}else{streak=0;sfx.bad()}
+  if(cur.type==='x')P.mark=[[cur.x0,cur.y0]];P.draw();$('gk').textContent=streak;$('gs').textContent=score;msg(m);
+  setTimeout(()=>{if(!alive)return;round>=N?finish():startRound()},ok?900:1500)}
+ function penalty(m){streak=0;$('gk').textContent=0;t0-=2000;sfx.bad();msg(m+' −2 s')}
+ function pick(p){if(!running)return;
+  if(cur.type!=='x'){P.bad=[p];P.draw();penalty('Esas rectas eran paralelas.');return}
+  if(Math.hypot(p[0]-cur.x0,p[1]-cur.y0)<=.8){const pts=100+Math.round(100*left()/tot)+20*streak;endRound(true,`¡Ahí! +${pts}`,pts)}
+  else{P.bad=[p];P.draw();penalty('Ahí no.')}}
+ $('gnone').onclick=()=>{if(!running)return;if(cur.type==='p'){const pts=100+Math.round(100*left()/tot)+20*streak;endRound(true,`¡Paralelas! +${pts}`,pts)}else penalty('Sí se cruzaban.')};
+ $('gstart').onclick=()=>{round=0;score=0;streak=0;right=0;$('gs').textContent=0;$('gk').textContent=0;startRound()};
+ function finish(){running=false;P.lines=[];P.mark=[];P.bad=[];P.draw();$('geq').innerHTML='';$('gstart').hidden=false;$('gstart').textContent='Jugar otra vez';
+  const m=`¡${score} puntos! Atrapaste ${right} de ${N}.`;msg(m);addXP(Math.round(score/25));sfx.win();confetti();api.done(m+' Leer un cruce al vuelo es una habilidad que se entrena.')}}
+
+/* ===== juego: gimnasio de despejes ===== */
+function gameDespeja(el,api){
+ const R=5;let round=0,total=0,st,par=0,moves=0,hist=[],alive=true,busy=false;cleanups.push(()=>alive=false);
+ el.insertAdjacentHTML('beforeend',`<div class="hud"><span>Ecuación <b id="dr">1</b>/${R}</span><span>Movimientos <b id="dm">0</b></span><span id="dstar">★ 0</span></div><div class="card"><div class="eq" id="deq" style="line-height:1.7"></div></div><div class="ops" id="dops"></div><div class="btnrow"><button class="xbtn" id="dund">Deshacer</button><button class="xbtn" id="drst">Reiniciar ecuación</button></div><div class="balmsg" id="dmsg">Deja la x sola. Cada operación se aplica a los dos lados.</div>`);
+ const msg=m=>{$('dmsg').innerHTML=V(m)};
+ function gen(){for(;;){const a=[1,1,2,3,-1,-2][rnd(0,5)];let b=nz(),c=nz()*rnd(1,3);if(Math.random()<.5&&Math.abs(a)>1){b=a*(rnd(1,3)*(Math.random()<.5?1:-1));c=a*rnd(-5,6);if(!c)continue}if(b===0||c===0)continue;return {p:a,q:b,r:c,s:0,den:1}}}
+ function divide(s){const p=s.p;if(s.den===1&&[s.p,s.q,s.r,s.s].every(v=>v%p===0))return {p:1,q:s.q/p,r:s.r/p,s:s.s/p,den:1};
+  if(s.q===0){const sg=p<0?-1:1;return {p:1,q:0,r:sg*s.r,s:sg*s.s,den:s.den*Math.abs(p)}}return null}
+ function opsList(){const L=[],cq=Math.abs(st.q)===1?'':Math.abs(st.q);
+  if(st.q!==0){L.push({t:`${st.q>0?'restar':'sumar'} ${cq}{y}`,good:1,f:s=>({...s,q:0,s:s.s-s.q})});L.push({t:`${st.q>0?'sumar':'restar'} ${cq}{y}`,f:s=>({...s,q:2*s.q,s:s.s+s.q})})}
+  if(st.p!==1){L.push({t:`dividir entre ${st.p}`,good:st.q===0?1:0,f:divide,tip:'Para dividir, todo debe poder dividirse. Primero mueve la y al otro lado.'});L.push({t:`multiplicar por ${st.p}`,f:s=>({...s,p:s.p*s.p,q:s.q*s.p,r:s.r*s.p,s:s.s*s.p})})}
+  return L}
+ function showEq(){const cf=k=>k===1?'':k===-1?'−':numS(k);
+  const left=`${cf(st.p)}{x}`+(st.q?` ${st.q<0?'−':'+'} ${Math.abs(st.q)===1?'':Math.abs(st.q)}{y}`:''),rr=V(lin(st.r,st.s,'y'));
+  $('deq').innerHTML=V(left)+' = '+(st.den===1?rr:fr(rr,st.den));$('dm').textContent=moves;
+  const box=$('dops');box.innerHTML='';opsList().forEach(o=>{const b=document.createElement('button');b.className='xbtn';if(o.good)b.dataset.good='1';b.innerHTML=V(o.t);b.onclick=()=>apply(o);box.appendChild(b)})}
+ function newRound(){st=gen();par=(st.q!==0?1:0)+(st.p!==1?1:0);moves=0;hist=[];$('dr').textContent=round+1;showEq()}
+ function apply(o){if(busy)return;const n=o.f(st);if(!n){msg(o.tip);sfx.bad();return}
+  if(Math.max(...[n.p,n.q,n.r,n.s].map(Math.abs))>200){msg('Los números se disparan. Deshaz el último movimiento.');return}
+  hist.push({...st});st=n;moves++;sfx.pop();showEq();msg('Cada operación se aplica a los dos lados.');
+  if(st.p===1&&st.q===0){busy=true;const stars=moves<=par?3:moves<=par+1?2:1;total+=stars;$('dstar').textContent='★ '+total;sfx.ok();msg(`¡Despejada en ${moves} ${moves===1?'movimiento':'movimientos'}! ${'★'.repeat(stars)}${stars<3?' (se podía en '+par+')':''}`);
+   setTimeout(()=>{busy=false;if(!alive)return;round++;if(round>=R)finish();else newRound()},1400)}}
+ $('dund').onclick=()=>{if(busy||!hist.length)return;st=hist.pop();moves++;showEq()};
+ $('drst').onclick=()=>{if(busy)return;st=hist.length?hist[0]:st;hist=[];moves=0;showEq()};
+ function finish(){const m=`${total} de ${R*3} estrellas.`;addXP(total*4);sfx.win();if(total>=10)confetti();msg(m);api.done(m+' Despejar bien es mover, de uno en uno, lo mismo a los dos lados.')}
+ newRound()}
+
+/* ===== juego: mesa de boletas ===== */
+function mesa(el,api,cfg){
+ const n=cfg.n,nm=cfg.nm;const LET='ABCDEFGHIJKLMNOPQRST'.split('');
+ let cards=cfg.init.map((c,i)=>({...c,id:LET[i],from:'boleta original',orig:true})),hist=[],sel=[],moves=0,fin=false;
+ el.insertAdjacentHTML('beforeend',`<div class="hud"><span>Movimientos <b id="mm">0</b></span><span id="msol" class="t-mute">Aún no sabes nada</span><span id="mst"></span></div><div class="ops" id="mops"></div><div class="cards" id="mcards"></div><div class="balmsg" id="mmsg">Combina como quieras: hay muchos caminos. Busca tarjetas con una sola incógnita.</div><div class="btnrow"><button class="xbtn" id="mund">Deshacer</button><button class="xbtn" id="mrst">Reiniciar</button><button class="xbtn" id="mhint">¿Qué hago?</button><button class="xbtn" id="mgive">Ver solución</button></div>`);
+ const msg=m=>{$('mmsg').innerHTML=V(m)},get=id=>cards.find(c=>c.id===id);
+ const snap=()=>hist.push(JSON.stringify({cards,sel,moves}));
+ function push(nc,from){if(cards.length>=LET.length){msg('Ya hay muchas tarjetas. Descarta alguna.');return}
+  if(Math.max(...nc.co.map(Math.abs),Math.abs(nc.k))>300){msg('Los números se están disparando. Prueba otra ruta.');sfx.bad();return}
+  snap();const c={...nc,id:LET.find(l=>!cards.some(x=>x.id===l)),from,src:'',fresh:true};cards.push(c);moves++;sel=[c.id];sfx.pop();render();check()}
+ const mul=(c,k)=>push(cMul(c,k),`${k<0?'−':''}${Math.abs(k)} × ${c.id}`);
+ const div=(c,g)=>push(cDiv(c,g),`${c.id} ÷ ${g}`);
+ const comb=(a,b,s)=>push(cAdd(a,b,s),`${a.id} ${s>0?'+':'−'} ${b.id}`);
+ function render(){const box=$('mcards');box.innerHTML='';
+  cards.forEach(c=>{const b=document.createElement('button');b.className='tc'+(sel[0]===c.id?' sel1':'')+(sel[1]===c.id?' sel2':'')+(c.fresh?' new':'');c.fresh=false;b.dataset.id=c.id;b.dataset.co=c.co.join(',');b.dataset.k=c.k;
+   b.innerHTML=`<span class="bd ${c.src||''}">${c.id}</span><span>${V(cTxt(c,nm))}</span><small>${c.from}</small>`;b.onclick=()=>pickCard(c.id);box.appendChild(b)});
+  const o=$('mops');o.innerHTML='';const op=(t,f,cls='')=>{const b=document.createElement('button');b.className='xbtn '+cls;b.innerHTML=V(t);b.onclick=f;o.appendChild(b);return b};
+  if(sel.length===1){const c=get(sel[0]);[2,3,4,5,-1].forEach(k=>op(`× ${k<0?'−'+(-k):k}`,()=>mul(c,k)));
+   o.insertAdjacentHTML('beforeend',`<span class="mulbox"><input id="mcus" type="number" value="6" min="-12" max="12" aria-label="multiplicar por otro número"><button class="xbtn" id="mcusb">× ese número</button></span>`);
+   $('mcusb').onclick=()=>{const k=Math.round(+$('mcus').value);if(!k||k===1){msg('Elige un número distinto de 0 y de 1.');return}mul(c,k)};
+   const g=cGcd(c);if(g>1)op(`÷ ${g}`,()=>div(c,g));if(!c.orig)op('Descartar',()=>{snap();cards=cards.filter(x=>x.id!==c.id);sel=[];render()},'ghost')}
+  else if(sel.length===2){const a=get(sel[0]),b=get(sel[1]);op(`${a.id} + ${b.id}`,()=>comb(a,b,1));op(`${a.id} − ${b.id}`,()=>comb(a,b,-1));op(`${b.id} − ${a.id}`,()=>comb(b,a,-1))}
+  else o.innerHTML='<span class="t-mute">Toca una tarjeta para multiplicarla, o dos para combinarlas.</span>';
+  $('mm').textContent=moves}
+ function pickCard(id){if(fin)return;const i=sel.indexOf(id);if(i>=0)sel.splice(i,1);else{sel.push(id);if(sel.length>2)sel.shift()}render()}
+ function check(){const s=solvedOf(cards,n);$('msol').innerHTML=V(s.some(v=>v!==null)?s.map((v,i)=>v===null?'':`{${nm[i]}} = ${numS(v)}`).filter(Boolean).join(' · '):'Aún no sabes nada');
+  $('msol').className=s.some(v=>v!==null)?'t-ok':'t-mute';
+  if(s.every(v=>v!==null)&&!fin){const stars=moves<=cfg.par?3:moves<=cfg.par+4?2:1;finish(stars,s)}}
+ function finish(stars,s){fin=true;sel=[];render();$('mst').textContent='★'.repeat(stars);$('mst').className='t-ok';
+  const m=`${s.map((v,i)=>`{${nm[i]}} = ${numS(v)}`).join(', ')}. ${'★'.repeat(stars)} en ${moves} movimientos.`;addXP(stars*10);sfx.win();confetti();api.done(m)}
+ $('mund').onclick=()=>{if(fin||!hist.length)return;const s=JSON.parse(hist.pop());cards=s.cards;sel=s.sel;moves=s.moves;render();check()};
+ $('mrst').onclick=()=>{if(fin)return;cards=cfg.init.map((c,i)=>({...c,id:LET[i],from:'boleta original',orig:true}));sel=[];hist=[];moves=0;render();check();msg('Empezamos de nuevo.')};
+ $('mhint').onclick=()=>{msg(hintFor(cards,n,nm))};
+ $('mgive').onclick=()=>{if(fin)return;moves=Math.max(moves,cfg.par+5);cfg.sol.forEach((v,i)=>{const co=Array(n).fill(0);co[i]=1;cards.push({co,k:v,id:LET.find(l=>!cards.some(x=>x.id===l)),from:'solución',src:'',fresh:true})});render();check()};
+ render();check()}
+
 /* ===== definición de la lección ===== */
+function genPos(){for(;;){const x0=rnd(1,6),y0=rnd(1,6),a1=rnd(1,5),b1=rnd(1,5),a2=rnd(1,5),b2=rnd(1,5);
+ if(a1*b2===a2*b1||a1===a2||b1===b2)continue;return {a1,b1,c1:a1*x0+b1*y0,a2,b2,c2:a2*x0+b2*y0,x0,y0}}}
 const read=(id,text,vis,o={})=>({k:'read',id,text,vis,...o});
 const choice=(id,text,opts,ans,why,hints={},o={})=>({k:'choice',id,text,opts,ans,why,hints,...o});
 const fill=(id,text,eq,why,o={})=>({k:'fill',id,text,eq,why,...o});
@@ -399,12 +676,14 @@ const LV=[
   {ok:'Mira: todas las marcas caen sobre una recta. Esa recta son todas las parejas que cumplen la boleta de Ana.',hint:'Si el pan cuesta 0, el jugo debe costar 6. Si el pan cuesta 2, el jugo cuesta 3. Prueba también el pan en 4.'}),
  fill('ana-int','Dos puntos bastan para dibujar una recta. En 3x + 2y = 12: si el jugo cuesta $0, ¿cuánto cuesta el pan? Y si el pan cuesta $0, ¿cuánto el jugo?','Con jugo $0: pan = $[[4]]<br>Con pan $0: jugo = $[[6]]',
   '3x = 12 da x = 4, y 2y = 12 da y = 6. Los puntos (4, 0) y (0, 6) bastan para trazar la recta.',{hint:'Con jugo $0 queda 3x = 12. Con pan $0 queda 2y = 12.',
-  mount:(el)=>plane(el,{},{noPoint:true,lines:[{eq:EA,c:'ana',name:'Ana'}]})}),
+  mount:(el)=>plane(el,{},{noPoint:true,small:true,lines:[{eq:EA,c:'ana',name:'Ana'}]})}),
  fill('luis-int','Lo mismo con Luis: x + 4y = 14. Si el pan cuesta $0, ¿cuánto cuesta un jugo? Y si el pan cuesta $6, ¿cuánto?','Con pan $0: jugo = $[[3.5]]<br>Con pan $6: jugo = $[[2]]',
   '4y = 14 da y = 3,5. Con pan $6 queda 4y = 8, y = 2. Los puntos (0; 3,5) y (6, 2) trazan la recta de Luis.',{hint:'Con pan $0 queda 4y = 14. Con pan $6 queda 6 + 4y = 14.',
-  mount:(el)=>plane(el,{},{noPoint:true,lines:[{eq:EB,c:'luis',name:'Luis'}]})}),
+  mount:(el)=>plane(el,{},{noPoint:true,small:true,lines:[{eq:EB,c:'luis',name:'Luis'}]})}),
  explore('plane-both','Ahora están las dos rectas. Arrastra el punto hasta donde las dos boletas cuadren.',(el,api)=>plane(el,api,{start:[1,1],lines:[{eq:EA,c:'ana',name:'Ana',chip:true},{eq:EB,c:'luis',name:'Luis',chip:true}],on:c=>{if(c.sat(EA,c.pt)&&c.sat(EB,c.pt))api.done()}}),
   {ok:'Se cruzan en (2, 3). Ese punto está en las dos rectas, así que cumple las dos ecuaciones. La solución es el cruce.',hint:'Busca el lugar donde las dos rectas se encuentran.'}),
+ explore('3d-heights','Ahora en 3D. Cada boleta es una lona que se alza sobre el suelo de precios, y su altura es lo que te sobra o te falta. Mueve el marcador por el suelo hasta que las dos varillas queden en cero.',(el,api)=>heights3d(el,api),
+  {ok:'Las dos lonas tocan el suelo justo ahí. La recta que dibujaste antes es donde cada lona toca el suelo, y la solución es el único punto donde las dos lo tocan a la vez.',hint:'Cada varilla mide cuánto sobra o falta. Mueve el marcador hacia donde las dos se achican. También funcionan las flechas del teclado.'}),
  explore('lab-par','Las rectas no siempre se cruzan. Cambia los números de la boleta de Luis hasta que las rectas sean paralelas.',(el,api)=>linesLab(el,api,'paralelas'),
   {ok:'Paralelas: nunca se tocan, así que no hay solución. Pasa cuando dos boletas se contradicen: mismas compras, distinto precio.',hint:'Las rectas deben tener la misma inclinación. Prueba 3 panes y 2 jugos con otro total.'}),
  explore('lab-same','Ahora al revés: haz que sean la misma recta.',(el,api)=>linesLab(el,api,'misma'),
@@ -412,7 +691,8 @@ const LV=[
  choice('zero6','Resuelves un sistema y al restar las ecuaciones te queda 0 = 6. ¿Qué significa?',['No tiene solución (rectas paralelas)','Tiene infinitas soluciones','La solución es 6'],0,
   'Cero nunca es igual a seis: las ecuaciones se contradicen. Si hubiera quedado 0 = 0, serían infinitas.',{1:'Infinitas soluciones aparecen con 0 = 0, que es cierto siempre.',2:'No hay ninguna incógnita despejada, solo una igualdad falsa.'}),
  choice('exact','Dibujas las rectas y se cruzan "más o menos" en (2,4; 3,8). ¿Qué haces para estar seguro?',['Compruebo el punto en las dos ecuaciones','Confío en el dibujo','Dibujo las rectas más gruesas'],0,
-  'El dibujo da la intuición y el cálculo da la exactitud. Los próximos métodos calculan sin dibujar.',{1:'El ojo no distingue 2,4 de 2,37.',2:'El color no cambia dónde se cruzan.'})
+  'El dibujo da la intuición y el cálculo da la exactitud. Los próximos métodos calculan sin dibujar.',{1:'El ojo no distingue 2,4 de 2,37.',2:'El grosor no cambia dónde se cruzan.'}),
+ explore('game-cross','Juego: atrapa el cruce. Toca el punto donde se cruzan las rectas antes de que se acabe el tiempo. Ojo: a veces son paralelas.',(el,api)=>gameCross(el,api),{game:true,hint:'Las ecuaciones aparecen arriba. Una recta pasa por (0, c/b): úsalo para ubicarla rápido.'})
 ]},
 {title:'Nivel 3 · Cambiar una cosa por otra',steps:[
  explore('bill','Un billete de $20 vale lo mismo que dos de $10. Toca el billete.',(el,api)=>{
@@ -423,6 +703,7 @@ const LV=[
   'En x + 4y = 14 la x no tiene número delante: despejarla solo pide restar 4y. Las otras obligan a dividir y aparecen fracciones.',{1:'Habría que dividir entre 2.',2:'Habría que dividir entre 3.'},{vis:`<div class="card">${SYSC}</div>`}),
  choice('despeje','Para dejar la x sola en x + 4y = 14, ¿qué haces?',['Restar 4y a los dos lados','Dividir los dos lados entre 4','Sumar 4y a los dos lados'],0,
   'Restas 4y de los dos lados y queda x = 14 − 4y. Es una receta: el precio del pan según el precio del jugo.',{1:'Dividir entre 4 no quita 4y de la izquierda.',2:'Sumar 4y lo dejaría aún peor: x + 8y.'}),
+ explore('game-despeja','Juego: gimnasio de despejes. Deja la x sola en cada ecuación con el menor número de movimientos. Lo que hagas a un lado se aplica al otro.',(el,api)=>gameDespeja(el,api),{game:true,hint:'Primero mueve el término de la y. Después divide para que la x no tenga número delante.'}),
  explore('tapx','Cambia la x de la primera ecuación por su receta. Toca la x.',(el,api)=>{
   el.innerHTML=`<div class="eqline" id="e1">3<button class="slot" id="sx" aria-label="x"><i class="v">x</i></button> + 2<i class="v">y</i> = 12</div><div class="eq" style="line-height:1.4">Receta: <span class="tile">${V('{x} = 14 − 4{y}')}</span></div>`;
   $('sx').onclick=()=>{$('e1').innerHTML=V('3<span class="newpart">(14 − 4{y})</span> + 2{y} = 12');api.done()}},
@@ -454,6 +735,7 @@ const LV=[
  fill('red2','Ahora termina: halla y, y vuelve a x + 4y = 14 para hallar x.','{y} = [[3]]<br>{x} = [[2]]','y = 30 ÷ 10 = 3. Y x + 12 = 14, así que x = 2. Tercer método, misma pareja.',{hint:'Con y = 3, queda x + 12 = 14.'}),
  choice('opp','En 2x + 3y = 12 y 4x − 3y = 6, ¿qué conviene?',['Sumar','Restar','Dividir'],0,
   'Las y son 3y y −3y: se cancelan al sumar. Queda 6x = 18, así que x = 3.',{1:'Al restar, las y se duplican: 6y.',2:'Dividir no elimina ninguna incógnita.'}),
+ explore('game-mesa2','Juego: la mesa de boletas. Cada boleta es una tarjeta. Multiplícalas, súmalas o réstalas hasta tener una tarjeta por incógnita. Tú eliges el camino y gana quien use menos movimientos.',(el,api)=>{const s=genPos();mesa(el,api,{n:2,nm:['x','y'],par:8,sol:[s.x0,s.y0],init:[{co:[s.a1,s.b1],k:s.c1,src:'ana'},{co:[s.a2,s.b2],k:s.c2,src:'luis'}]})},{game:true}),
  read('callback','¿Recuerdas que comparando las boletas dedujiste que el jugo cuesta $1 más que el pan? Eso ya era una reducción: restaste una boleta de otra. Lo descubriste antes de que te lo enseñara.',
   `<div class="card"><div class="eqs" style="align-items:center">${g5(1,4,14,'t-luis')}${g5(3,2,12,'t-ana')}</div></div>`)
 ]},
@@ -466,7 +748,14 @@ const LV=[
   'Las y son 3y y −3y: sumas y desaparecen.',{1:'Habría que despejar con fracciones.',2:'Habría que despejar con fracciones.'}),
  check('ch1','Reto 1 de 3. Resuelve con el método que quieras. Si te atascas, pide ayuda abajo.',(el,api)=>challenge(el,api,0)),
  check('ch2','Reto 2 de 3.',(el,api)=>challenge(el,api,1)),
- check('ch3','Reto 3 de 3. Este tiene números más difíciles.',(el,api)=>challenge(el,api,2)),
+ check('ch3','Reto 3 de 3. Este tiene números más difíciles.',(el,api)=>challenge(el,api,2))
+]},
+{title:'Nivel 6 · Más allá',steps:[
+ explore('3d-planes','¿Y si entra el queso en escena? Ahora hay tres incógnitas: pan, jugo y queso. Cada boleta ya no es una recta sino un plano. Enciende las boletas una por una y mira qué pasa.',(el,api)=>planes3d(el,api),
+  {ok:'Tres planos se cortan en un solo punto: pan $2, jugo $3 y queso $4. Con tres incógnitas hacen falta tres pistas.',hint:'Toca los tres botones. Arrastra la escena para girarla.'}),
+ choice('planes-q','Para fijar un punto en el espacio, ¿cuántas boletas independientes hacen falta?',['Tres, una por incógnita','Dos','Una'],0,
+  'Una por incógnita: con dos planos queda una recta entera de soluciones, y el tercero la corta en un punto.',{1:'Dos planos se cortan en una recta, no en un punto.',2:'Un plano es una hoja entera de soluciones.'}),
+ explore('game-mesa3','Jefe final. Ana, Luis y Marta compraron pan (x), jugo (y) y queso (z). Usa la mesa de boletas para descubrir el precio de cada uno. El método ya lo conoces: elimina una incógnita, luego otra.',(el,api)=>mesa(el,api,{n:3,nm:['x','y','z'],par:11,sol:[2,3,4],init:[{co:[1,1,1],k:9,src:'ana'},{co:[1,2,3],k:20,src:'luis'},{co:[2,1,2],k:15,src:'q'}]}),{game:true}),
  read('fin','Lo descubriste tú: una ecuación es una verdad, y resolver un sistema es combinar verdades hasta tener una con una sola incógnita.',
   `<div class="idea">combinar verdades</div><div class="pills"><span class="pill">Gráfico: ver el cruce</span><span class="pill">Sustitución: cambiar por su equivalente</span><span class="pill">Igualación: dos recetas del mismo valor</span><span class="pill">Reducción: sumar balanzas</span></div>`,{last:true})
 ]}
@@ -475,17 +764,18 @@ const LV=[
 /* ===== motor de la lección ===== */
 const flat=[];LV.forEach((lv,li)=>lv.steps.forEach((st,si)=>flat.push({li,si,st})));
 let gi=0,S=null,SEL=null;
+try{XP=+localStorage.getItem('sel-xp')||0}catch(e){}$('xp').textContent='⚡ '+XP;
 const store={get(){try{return +localStorage.getItem('sel-prog')||0}catch(e){return 0}},set(v){try{localStorage.setItem('sel-prog',v)}catch(e){}}};
 function buildProg(){$('prog').innerHTML=LV.map(()=>'<div class="seg"><i></i></div>').join('')}
 function updProg(){const e=flat[gi];[...$('prog').children].forEach((s,i)=>{const n=LV[i].steps.length;s.firstChild.style.width=(i<e.li?100:i===e.li?(e.si/n*100):0)+'%'});$('prog').setAttribute('aria-valuenow',Math.round(gi/flat.length*100))}
 function setBtn(label,enabled){const b=$('go');b.textContent=label;b.disabled=!enabled}
 function show(i){
- gi=i;store.set(i);const e=flat[i],st=e.st;SEL=null;
- S={phase:'ask',en:false,check:null,onRetry:null};
+ runCleanups();$('lvlup').hidden=true;gi=i;store.set(i);const e=flat[i],st=e.st;SEL=null;
+ S={phase:'ask',en:false,check:null,onRetry:null,fails:0};
  $('ft').className='';$('sheet').hidden=true;$('lvl').textContent=LV[e.li].title;
  $('prompt').innerHTML=V(st.text);const vis=$('vis');vis.innerHTML='';vis.dataset.sid=st.id;vis.dataset.kind=st.k;
  vis.className='enter';void vis.offsetWidth;
- const api={enable:v=>{S.en=v;if(S.phase==='ask'&&S.check)setBtn('Comprobar',v)},setCheck:f=>{S.check=f},
+ const api={enable:v=>{S.en=v;if(S.phase==='ask'&&S.check)setBtn('Comprobar',v)},setCheck:f=>{S.check=f},cleanup:f=>cleanups.push(f),
   done:msg=>{if(S.phase!=='ask')return;succeed(msg||st.ok||st.why||'¡Muy bien!')}};
  if(st.vis)vis.insertAdjacentHTML('beforeend',st.vis);
  if(st.k==='read'){S.phase='ok';setBtn(st.last?'Terminar':'Continuar',true)}
@@ -509,16 +799,19 @@ function mountChoice(st,vis,api){
  setBtn('Comprobar',false)}
 function sheet(kind,title,msg){const s=$('sheet');s.hidden=false;s.innerHTML=`<h3>${title}</h3><p>${V(msg)}</p>`;$('ft').className=kind}
 const GOOD=['¡Eso es!','¡Muy bien!','Exacto.','Así se hace.'];
-function succeed(msg){S.phase='ok';if(S.markRight)S.markRight();sheet('ok',GOOD[Math.floor(Math.random()*GOOD.length)],msg);setBtn(flat[gi].st.last?'Terminar':'Continuar',true);say(msg);
+function succeed(msg){S.phase='ok';{const st=flat[gi].st,k=st.k;if(k==='choice'||k==='fill'||k==='check')addXP(S.fails?5:10);else if(k==='explore'&&!st.game)addXP(10);if(!st.game)sfx.ok()}if(S.markRight)S.markRight();sheet('ok',GOOD[Math.floor(Math.random()*GOOD.length)],msg);setBtn(flat[gi].st.last?'Terminar':'Continuar',true);say(msg);
  document.querySelectorAll('#vis input.blank').forEach(i=>i.disabled=true)}
-function fail(msg){S.phase='bad';sheet('bad','Todavía no',msg);setBtn('Intentar de nuevo',true);say(msg)}
+function fail(msg){S.phase='bad';S.fails=(S.fails||0)+1;sfx.bad();sheet('bad','Todavía no',msg);setBtn('Intentar de nuevo',true);say(msg)}
 function retry(){S.phase='ask';$('ft').className='';$('sheet').hidden=true;if(S.onRetry)S.onRetry();setBtn('Comprobar',S.en&&S.check?S.en:false);if(S.en)$('go').disabled=false;const f=document.querySelector('#vis input.blank.bad');if(f)f.focus()}
 $('go').onclick=()=>{
  const st=flat[gi].st;
  if(S.phase==='ok'){if(st.last){SS&&SS.cancel();$('start').hidden=false;store.set(0);$('goC').hidden=true;return}next();return}
  if(S.phase==='bad'){retry();return}
  if(S.check){const r=S.check();r.ok?succeed(r.msg):fail(r.msg)}};
-function next(){if(gi<flat.length-1)show(gi+1)}
+function next(){if(gi>=flat.length-1)return;const a=flat[gi],b=flat[gi+1];if(a.li!==b.li)interlude(a.li,b.li);else show(gi+1)}
+function interlude(a,b){confetti();sfx.win();const o=$('lvlup');o.querySelector('h2').textContent=`¡${LV[a].title.split(' · ')[0]} completado!`;
+ o.querySelector('p').textContent=`Llevas ⚡ ${XP}. Lo que viene: ${LV[b].title.split(' · ')[1]}.`;o.hidden=false;$('lvbtn').focus();say(`Nivel completado. Lo que viene: ${LV[b].title.split(' · ')[1]}.`)}
+$('lvbtn').onclick=()=>{$('lvlup').hidden=true;show(gi+1)};
 $('say').onclick=()=>say(flat[gi].st.text);
 $('snd').onclick=()=>{SND=!SND;$('snd').textContent=SND?'🔊':'🔇';if(!SND&&SS)SS.cancel()};
 $('menu').onclick=()=>{$('menuP').hidden=false};
